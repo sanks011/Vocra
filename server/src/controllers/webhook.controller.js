@@ -1,4 +1,5 @@
 const Interview = require('../models/interview.model');
+const { analyzeTranscript, extractQuestionsFromTranscript } = require('../services/transcript-analysis.service');
 
 // Webhook endpoint for Omnidimension to submit interview results
 exports.handleOmnidimensionWebhook = async (req, res) => {
@@ -89,9 +90,55 @@ exports.handleOmnidimensionWebhook = async (req, res) => {
             timestamp: new Date()
           };
         });
-      }    }
+      }    }    console.log('Parsed questions:', JSON.stringify(parsedQuestions, null, 2));
 
-    console.log('Parsed questions:', JSON.stringify(parsedQuestions, null, 2));
+    // Calculate overall score from Omnidimension data
+    const omnidimensionScore = Math.round(
+      (technical_score + communication_score + confidence_score) / 3
+    );
+
+    // Perform AI analysis of the transcript
+    let aiAnalysis = null;
+    if (transcript && transcript.trim()) {
+      console.log('🤖 Starting AI analysis of transcript...');
+      try {
+        aiAnalysis = await analyzeTranscript(
+          transcript, 
+          interview.jobContext || {}, 
+          candidate_name || interview.candidateId
+        );
+        console.log('✅ AI analysis completed successfully');
+      } catch (analysisError) {
+        console.error('❌ AI analysis failed:', analysisError);
+      }
+    }
+
+    // Extract questions from transcript if not provided
+    if (parsedQuestions.length === 0 && transcript) {
+      parsedQuestions = extractQuestionsFromTranscript(transcript);
+      console.log('📋 Extracted questions from transcript:', parsedQuestions.length);
+    }
+
+    // Use AI analysis scores if available, otherwise use Omnidimension scores
+    const finalScores = aiAnalysis ? {
+      overallScore: aiAnalysis.overallScore,
+      technicalScore: aiAnalysis.technicalScore,
+      communicationScore: aiAnalysis.communicationScore,
+      confidenceScore: aiAnalysis.confidenceScore,
+      strengths: aiAnalysis.strengths,
+      weaknesses: aiAnalysis.weaknesses,
+      recommendation: aiAnalysis.recommendation,
+      summary: aiAnalysis.detailedFeedback
+    } : {
+      overallScore: omnidimensionScore,
+      technicalScore: technical_score || 0,
+      communicationScore: communication_score || 0,
+      confidenceScore: confidence_score || 0,
+      strengths: Array.isArray(strengths) ? strengths : (strengths ? [strengths] : []),
+      weaknesses: Array.isArray(weaknesses) ? weaknesses : (weaknesses ? [weaknesses] : []),
+      recommendation: recommendation || 'neutral',
+      summary: 'Interview completed via Omnidimension'
+    };
 
     // Update interview with results
     interview.status = 'completed';
@@ -100,14 +147,17 @@ exports.handleOmnidimensionWebhook = async (req, res) => {
       duration: duration || 300,
       transcript: transcript || '',
       questions: parsedQuestions,
-      analysis: {
-        overallScore: overallScore,
-        technicalScore: technical_score || 0,
-        communicationScore: communication_score || 0,
-        confidenceScore: confidence_score || 0,
-        strengths: Array.isArray(strengths) ? strengths : (strengths ? [strengths] : []),
-        weaknesses: Array.isArray(weaknesses) ? weaknesses : (weaknesses ? [weaknesses] : []),
-        recommendation: recommendation || 'neutral'
+      analysis: finalScores,
+      // Store AI analysis separately for detailed review
+      aiAnalysis: aiAnalysis || null,
+      // Store original Omnidimension data for comparison
+      omnidimensionData: {
+        technical_score: technical_score || 0,
+        communication_score: communication_score || 0,
+        confidence_score: confidence_score || 0,
+        strengths: strengths,
+        weaknesses: weaknesses,
+        recommendation: recommendation
       }
     };
 

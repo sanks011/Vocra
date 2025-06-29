@@ -25,6 +25,12 @@ Vocra is a cutting-edge AI-powered interview platform designed for both recruite
 - Express
 - MongoDB
 - Passport.js for Google OAuth
+- Omnidimension API for AI phone interviews
+- Groq API for transcript analysis
+
+### AI Integration:
+- **Omnidimension**: Provides the AI phone interview capabilities
+- **Groq API**: Powers transcript analysis with Llama 3.3-70B
 
 ## Getting Started
 
@@ -61,6 +67,9 @@ GOOGLE_CLIENT_ID=<your-google-client-id>
 GOOGLE_CLIENT_SECRET=<your-google-client-secret>
 GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
 SESSION_SECRET=<your-session-secret>
+OMNIDIMENSION_API_KEY=<your-omnidimension-api-key>
+OMNIDIMENSION_BASE_URL=https://backend.omnidim.io/api/v1
+GROQ_API_KEY=<your-groq-api-key>
 ```
 
 5. Start the server:
@@ -82,6 +91,16 @@ npm run dev
 3. After authentication, user is redirected back to the application
 4. New users are prompted to select their user type (recruiter or candidate)
 5. User is redirected to their respective dashboard
+
+## Interview Flow
+
+1. Recruiter creates job listing
+2. Candidate applies for a job
+3. AI interview is automatically scheduled
+4. Candidate receives phone call from AI interviewer
+5. Interview is conducted and recorded
+6. AI analyzes transcript and provides scores and feedback
+7. Recruiter reviews results and makes decisions
 
 ## License
 

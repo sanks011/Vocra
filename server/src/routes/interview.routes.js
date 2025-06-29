@@ -3,6 +3,7 @@ const router = express.Router();
 const { isAuthenticated } = require('../middleware/auth.middleware');
 const interviewController = require('../controllers/interview.controller');
 const webhookController = require('../controllers/webhook.controller');
+const debugController = require('../controllers/debug.controller');
 
 // Middleware to handle CORS for webhook endpoints
 const webhookCors = (req, res, next) => {
@@ -39,5 +40,11 @@ router.put('/:interviewId/status', isAuthenticated, interviewController.updateIn
 
 // Test route
 router.get('/test', isAuthenticated, interviewController.testEndpoint);
+
+// Debug routes for manual testing and troubleshooting
+router.get('/debug/active', isAuthenticated, debugController.listActiveInterviews);
+router.get('/debug/:interviewId/status', isAuthenticated, debugController.checkInterviewStatus);
+router.post('/debug/:interviewId/process', isAuthenticated, debugController.forceProcessCall);
+router.post('/debug/process-stale', isAuthenticated, debugController.processStaleInterviews);
 
 module.exports = router;

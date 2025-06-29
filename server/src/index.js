@@ -81,6 +81,9 @@ require('./config/passport')(passport);
 // Initialize interview scheduler service
 require('./services/interview-scheduler.service');
 
+// Initialize call status polling service
+require('./services/call-status-polling.service').startCallStatusPolling();
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI)

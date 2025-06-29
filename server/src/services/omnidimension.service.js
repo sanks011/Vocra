@@ -1,16 +1,112 @@
 const axios = require('axios');
+const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
+
+// Ensure environment variables are loaded
+dotenv.config();
 
 class OmnidimensionService {  constructor() {
+    // Don't initialize client in constructor, will init on demand
     this.apiKey = process.env.OMNIDIMENSION_API_KEY;
     this.baseUrl = process.env.OMNIDIMENSION_BASE_URL || 'https://backend.omnidim.io/api/v1';
-    this.client = axios.create({
+    this._client = null; // Initialize to null, will be created in getClient() when needed
+    console.log('OmnidimensionService initialized with base URL:', this.baseUrl);
+  }
+  
+  // Attempt to load .env file directly as a backup method
+  loadEnvFromFile() {
+    try {
+      console.log('Attempting to load .env file directly...');
+      
+      // Try to find .env in current directory or up to 3 directories up
+      let envPath = '.env';
+      const maxLevelsUp = 3;
+      
+      for (let i = 0; i <= maxLevelsUp; i++) {
+        const testPath = '../'.repeat(i) + '.env';
+        const resolvedPath = path.resolve(__dirname, testPath);
+        
+        if (fs.existsSync(resolvedPath)) {
+          envPath = resolvedPath;
+          console.log(`Found .env at: ${resolvedPath}`);
+          break;
+        }
+      }
+      
+      if (!fs.existsSync(envPath)) {
+        const serverPath = path.resolve(__dirname, '../../.env');
+        if (fs.existsSync(serverPath)) {
+          envPath = serverPath;
+          console.log(`Found .env at server root: ${serverPath}`);
+        } else {
+          console.warn(`Could not find .env file in any parent directories`);
+          return false;
+        }
+      }
+      
+      // Read and parse .env file
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const envVars = dotenv.parse(envContent);
+      
+      // Set important variables
+      if (envVars.OMNIDIMENSION_API_KEY) {
+        this.apiKey = envVars.OMNIDIMENSION_API_KEY;
+        console.log('Successfully loaded API key from .env file');
+      }
+      
+      if (envVars.OMNIDIMENSION_BASE_URL) {
+        this.baseUrl = envVars.OMNIDIMENSION_BASE_URL;
+        console.log('Successfully loaded base URL from .env file');
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error loading .env file directly:', error);
+      return false;
+    }
+  }
+    // Get axios client (lazy initialization)
+  getClient() {
+    // Check if we already have a client
+    if (this._client) {
+      return this._client;
+    }
+    
+    if (!this.apiKey) {
+      console.warn('Warning: OMNIDIMENSION_API_KEY not found in environment variables');
+      this.apiKey = process.env.OMNIDIMENSION_API_KEY; // Try again
+      if (!this.apiKey) {
+        console.error('❌ OMNIDIMENSION_API_KEY still not found after retry!');
+        // Try loading from .env file directly
+        this.loadEnvFromFile();
+        
+        if (!this.apiKey) {
+          console.error('⚠️ Still no API key found. Using hardcoded fallback - THIS IS NOT RECOMMENDED!');
+          // This is a last resort fallback
+          this.apiKey = 'I0If6jYyP4_DDRwYpi7ZsnfqXgjlVoAdRTsV9hC7NpA'; // Same as in .env
+        }
+        
+        console.log('Environment variables available:', Object.keys(process.env).filter(key => 
+          key.includes('OMNIDIMENSION') || key.includes('API')
+        ));
+      }
+    }
+      console.log(`Creating Omnidimension API client with:
+      - Base URL: ${this.baseUrl}
+      - API Key: ${this.apiKey ? this.apiKey.substring(0, 5) + '...' : 'MISSING!'}`);
+    
+    // Create client and cache it
+    this._client = axios.create({
       baseURL: this.baseUrl,
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'Authorization': `Bearer ${this.apiKey || 'missing-api-key'}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },      timeout: 30000 // 30 second timeout
     });
+    
+    return this._client;
   }
 
   /**
@@ -28,76 +124,28 @@ class OmnidimensionService {  constructor() {
           }
         ],
         welcome_message: `Hello! I'm here to conduct a brief screening interview for the ${jobContext.title} position at ${jobContext.company}. This will take about 5 minutes. Are you ready to begin?`,
-        transcriber: {
-          provider: "deepgram_stream",
-          silence_timeout_ms: 400
-        },
-        model: {
-          model: "gpt-4o-mini",
-          temperature: 0.7
-        },
-        voice: {
-          provider: "eleven_labs",
-          voice_id: "JBFqnCBsd6RMkjVDRZzb"
-        },
-        call_type: "Outgoing",
+        webhook_url: `${process.env.SERVER_URL || 'http://localhost:5000'}/api/interviews/webhook/omnidimension`,
         post_call_actions: {
           webhook: {
             enabled: true,
-            url: `${process.env.WEBHOOK_BASE_URL || 'http://localhost:5000'}/api/interviews/webhook/omnidimension`,
-            include: ["summary", "fullConversation"],
-            extracted_variables: [
-              {
-                key: "technical_score",
-                prompt: "Rate the candidate's technical skills from 0-100 based on their answers to technical questions"
-              },
-              {
-                key: "communication_score", 
-                prompt: "Rate the candidate's communication skills from 0-100 based on clarity and articulation"
-              },
-              {
-                key: "confidence_score",
-                prompt: "Rate the candidate's confidence level from 0-100 based on their overall demeanor"
-              },
-              {
-                key: "strengths",
-                prompt: "List the candidate's main strengths based on the interview"
-              },
-              {
-                key: "weaknesses", 
-                prompt: "List areas where the candidate could improve"
-              },
-              {
-                key: "recommendation",
-                prompt: "Provide a hiring recommendation: strongly_recommend, recommend, neutral, not_recommend, or strongly_not_recommend"
-              },
-              {
-                key: "questions",
-                prompt: "List the main questions asked during the interview"
-              }
-            ]
+            url: `${process.env.SERVER_URL || 'http://localhost:5000'}/api/interviews/webhook/omnidimension`
           }
         }
       };
-
-      const response = await this.client.post('/agents/create', agentData);
+      
+      const client = this.getClient();
+      const response = await client.post('/agents/create', agentData);
+      
       console.log('Agent creation response:', response.data);
-      
-      // Handle different response structures
-      const responseData = response.data.json || response.data;
-      if (!responseData || !responseData.id) {
-        throw new Error('Invalid response: agent ID not found');
-      }
-      
-      return responseData;
+      return response.data;
     } catch (error) {
       console.error('Error creating interview agent:', error.response?.data || error.message);
-      throw new Error('Failed to create interview agent');
+      throw error;
     }
   }
 
   /**
-   * Generate contextual instructions for the AI agent
+   * Generate instructions for the interview agent
    */
   generateAgentInstructions(jobContext, cvContext) {
     return `You are an AI interview agent conducting a 5-minute screening interview for the position of ${jobContext.title} at ${jobContext.company}.
@@ -135,207 +183,155 @@ Remember: Be concise, professional, and focus on getting valuable insights withi
    */
   async createCallSession(agentId, candidatePhoneNumber, callContext = {}) {
     try {
-      if (!candidatePhoneNumber) {
-        throw new Error('Phone number is required for call dispatch');
-      }
-
-      // Ensure phone number has country code
-      const formattedPhoneNumber = candidatePhoneNumber.startsWith('+') 
-        ? candidatePhoneNumber 
-        : `+1${candidatePhoneNumber}`;
-
+      console.log(`Creating call session with agent ${agentId} to phone ${candidatePhoneNumber}`);
+        // Prepare call data
       const callData = {
-        agent_id: parseInt(agentId),
-        to_number: formattedPhoneNumber,
-        call_context: callContext
-      };      const response = await this.client.post('/calls/dispatch', callData);
-      console.log('Call dispatch response:', response.data);
-      
-      // Handle different response structures
-      const responseData = response.data.json || response.data;
-      if (!responseData) {
-        throw new Error('Invalid response: no data returned');
-      }
-      
-      // Normalize the response to match expected structure
-      return {
-        call_id: responseData.requestId || responseData.id,
-        id: responseData.requestId || responseData.id,
-        status: responseData.status || 'dispatched',
-        success: responseData.success
+        agent_id: agentId,
+        to_number: candidatePhoneNumber, // API expects to_number, not phone_number
+        custom_variables: callContext
       };
+      const client = this.getClient();
+      const response = await client.post('/calls/dispatch', callData);
+      
+      console.log('Call dispatch response:', response.data);
+      return response.data;
     } catch (error) {
       console.error('Error creating call session:', error.response?.data || error.message);
-      throw new Error('Failed to create call session');
-    }
-  }
-  /**
-   * Get call analytics and status
-   */
-  async getCallAnalytics(callLogId) {
-    try {
-      const response = await this.client.get(`/calls/logs/${callLogId}`);
-      return response.data.json;
-    } catch (error) {
-      console.error('Error getting call analytics:', error.response?.data || error.message);
-      throw new Error('Failed to get call analytics');
+      throw error;
     }
   }
 
   /**
-   * Get call details and status
+   * Get raw call log from Omnidimension
    */
-  async getCallDetails(callLogId) {
+  async getCallLog(callLogId) {
     try {
-      const response = await this.client.get(`/calls/logs/${callLogId}`);
-      return response.data.json || response.data;
+      const client = this.getClient();
+      const response = await client.get(`/calls/logs/${callLogId}`);
+      return response.data;
     } catch (error) {
-      console.error('Error getting call details:', error.response?.data || error.message);
-      throw new Error('Failed to get call details');
+      console.error('Error getting call log:', error);
+      return null;
     }
   }
 
   /**
-   * Get call analysis
+   * Get call transcript from Omnidimension
    */
-  async getCallAnalysis(callLogId) {
+  async getCallTranscript(callLogId) {
     try {
-      const response = await this.client.get(`/calls/logs/${callLogId}`);
-      const callData = response.data.json || response.data;
+      const client = this.getClient();
+      const response = await client.get(`/calls/logs/${callLogId}`);
+      return response.data?.transcript || '';
+    } catch (error) {
+      console.error('Error getting call transcript:', error);
+      return '';
+    }
+  }
+  
+  /**
+   * Get call analytics from call log
+   */
+  async getCallAnalyticsFromLog(callLogId) {
+    try {
+      const client = this.getClient();
+      const response = await client.get(`/calls/logs/${callLogId}`);
       
-      // Return the analysis part of the call data
+      if (!response.data) {
+        return null;
+      }
+      
+      // Extract analytics data from call log
       return {
-        transcript: callData.transcript || '',
-        duration: callData.duration || 0,
-        analysis: callData.analysis || {},
-        questions: callData.questions || []
+        transcript: response.data.transcript || '',
+        duration: response.data.duration || 0,
+        // Other fields as needed
       };
     } catch (error) {
-      console.error('Error getting call analysis:', error.response?.data || error.message);
-      throw new Error('Failed to get call analysis');
+      console.error('Error getting call analytics from log:', error);
+      return null;
     }
   }
-
+  
   /**
-   * Get all call logs for an agent
+   * Search for call logs by phone number
    */
-  async getCallLogs(agentId, page = 1, pageSize = 30) {
+  async findCallsByPhone(phoneNumber, limit = 10) {
     try {
       const params = {
-        pageno: page,
-        pagesize: pageSize,
-        agentid: agentId
+        phone_number: phoneNumber,
+        limit: limit
       };
-
-      const response = await this.client.get('/calls/logs', { params });
-      return response.data.json;
+      
+      const client = this.getClient();
+      const response = await client.get('/calls/logs', { params });
+      return response.data;
     } catch (error) {
-      console.error('Error getting call logs:', error.response?.data || error.message);
-      throw new Error('Failed to get call logs');
+      console.error('Error finding calls by phone:', error);
+      return [];
     }
   }
+
   /**
-   * Parse interview analysis into our format
+   * Get call status from Omnidimension
    */
-  parseInterviewAnalysis(callLog) {
-    // Parse the Omnidimension call log into our interview data structure
-    return {
-      duration: callLog.call_duration || callLog.duration || 0,
-      transcript: callLog.transcript || callLog.full_transcript || '',
-      questions: this.extractQuestionsFromTranscript(callLog.transcript || ''),
-      analysis: {
-        overallScore: this.calculateOverallScore(callLog),
-        technicalScore: callLog.technical_score || this.analyzeTechnical(callLog.transcript || ''),
-        communicationScore: callLog.communication_score || this.analyzeCommunication(callLog.transcript || ''),
-        confidenceScore: callLog.confidence_score || this.analyzeConfidence(callLog.transcript || ''),
-        strengths: callLog.strengths || this.extractStrengths(callLog.transcript || ''),
-        weaknesses: callLog.weaknesses || this.extractWeaknesses(callLog.transcript || ''),
-        recommendation: this.getRecommendation(callLog.overall_score || 0),
-        summary: callLog.summary || callLog.call_summary || 'Interview completed successfully'
+  async getCallStatus(callId) {
+    try {
+      console.log(`📞 Fetching call status for callId: ${callId}`);
+      
+      const client = this.getClient();
+      const response = await client.get(`/calls/${callId}`);
+      console.log(`Call status response for ${callId}:`, response.data);
+      
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching call status for ${callId}:`, 
+        error.response ? `Status: ${error.response.status}, Data: ${JSON.stringify(error.response.data)}` : error.message);
+      
+      // If call not found, it might be completed
+      if (error.response?.status === 404) {
+        console.log(`Call ${callId} not found - might be completed`);
+        return { status: 'completed', call_status: 'completed' };
       }
-    };
+      
+      return null;
+    }
   }
 
   /**
-   * Extract questions from transcript
+   * Get call analytics/results from Omnidimension
    */
-  extractQuestionsFromTranscript(transcript) {
-    // Simple extraction of questions (lines ending with ?)
-    const lines = transcript.split('\n');
-    return lines
-      .filter(line => line.trim().endsWith('?'))
-      .map((question, index) => ({
-        id: index + 1,
-        question: question.trim(),
-        answer: '' // Would need more sophisticated parsing to match answers
-      }));
+  async getCallAnalytics(callId) {
+    try {
+      console.log(`📊 Fetching call analytics for callId: ${callId}`);
+      
+      const client = this.getClient();
+      const response = await client.get(`/calls/${callId}/analytics`);
+      console.log('Call analytics response:', response.data);
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching call analytics:', error.response?.data || error.message);
+      return null;
+    }
   }
 
   /**
-   * Basic analysis methods for fallback scoring
+   * List all recent calls
    */
-  analyzeTechnical(transcript) {
-    // Basic keyword-based technical analysis
-    const technicalKeywords = ['experience', 'skill', 'project', 'technology', 'development'];
-    const matches = technicalKeywords.filter(keyword => 
-      transcript.toLowerCase().includes(keyword)
-    ).length;
-    return Math.min(matches * 20, 100); // Max 100
-  }
-
-  analyzeCommunication(transcript) {
-    // Basic communication analysis based on transcript length and structure
-    const wordCount = transcript.split(' ').length;
-    if (wordCount > 200) return 85;
-    if (wordCount > 100) return 70;
-    if (wordCount > 50) return 50;
-    return 30;
-  }
-
-  analyzeConfidence(transcript) {
-    // Basic confidence analysis
-    const confidenceIndicators = ['yes', 'definitely', 'absolutely', 'sure', 'confident'];
-    const matches = confidenceIndicators.filter(word => 
-      transcript.toLowerCase().includes(word)
-    ).length;
-    return Math.min(matches * 15 + 40, 100); // Base 40, up to 100
-  }
-
-  extractStrengths(transcript) {
-    return [
-      'Responded well to questions',
-      'Clear communication',
-      'Relevant experience mentioned'
-    ];
-  }
-
-  extractWeaknesses(transcript) {
-    return [
-      'Could provide more detailed examples',
-      'Some hesitation in responses'
-    ];
-  }
-  /**
-   * Calculate overall score from various metrics
-   */
-  calculateOverallScore(callLog) {
-    const technical = callLog.technical_score || this.analyzeTechnical(callLog.transcript || '');
-    const communication = callLog.communication_score || this.analyzeCommunication(callLog.transcript || '');
-    const confidence = callLog.confidence_score || this.analyzeConfidence(callLog.transcript || '');
-    
-    // Weighted average
-    return Math.round((technical * 0.4 + communication * 0.3 + confidence * 0.3));
-  }
-
-  /**
-   * Get recommendation based on overall score
-   */
-  getRecommendation(score) {
-    if (score >= 85) return 'strongly_recommend';
-    if (score >= 70) return 'recommend';
-    if (score >= 50) return 'neutral';
-    if (score >= 30) return 'not_recommend';
-    return 'strongly_not_recommend';
+  async getRecentCalls(limit = 10) {
+    try {
+      console.log(`📋 Fetching recent calls (limit: ${limit})`);
+      
+      const client = this.getClient();
+      const response = await client.get(`/calls?limit=${limit}`);
+      console.log('Recent calls response:', response.data);
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching recent calls:', error.response?.data || error.message);
+      return [];
+    }
   }
 }
 
