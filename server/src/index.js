@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 
@@ -25,14 +26,21 @@ app.use(cors({
   credentials: true,
 }));
 
-// Session configuration
+// Session configuration with MongoDB store for persistence
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'your-secret-key-here',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions',
+    ttl: 7 * 24 * 60 * 60 // 7 days in seconds
+  }),
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    httpOnly: true, // Helps prevent XSS attacks
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
