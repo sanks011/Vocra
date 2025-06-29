@@ -82,14 +82,13 @@ const RoleBasedRoute = ({ children }) => {
 // ConditionalNavbar Component
 const ConditionalNavbar = () => {
   const location = useLocation();
-  const hideNavbarPaths = ['/dashboard', '/dashboard-new'];
   
-  // Don't show the navbar on dashboard routes
-  if (hideNavbarPaths.includes(location.pathname)) {
-    return null;
+  // Only show the navbar on the home page
+  if (location.pathname === '/') {
+    return <AuthNavbar />;
   }
   
-  return <AuthNavbar />;
+  return null;
 };
 
 const App = () => (
@@ -105,10 +104,9 @@ const App = () => (
       >
         <ConditionalNavbar />        <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/login" element={<LoginComponent />} />
-          <Route path="/profile-setup" element={
+          <Route path="/login" element={<LoginComponent />} />          <Route path="/profile-setup" element={
             <ProtectedRoute>
-              <div className="pt-16"><ProfileSetup /></div>
+              <ProfileSetup />
             </ProtectedRoute>
           } />
           
@@ -332,7 +330,7 @@ const App = () => (
           } />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<div className="pt-16"><NotFound /></div>} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
