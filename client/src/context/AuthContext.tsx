@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Define the user type
 interface User {
@@ -16,6 +17,7 @@ interface AuthContextType {
   checkAuth: () => Promise<void>;
   logout: () => Promise<void>;
   updateUserType: (userType: 'recruiter' | 'candidate') => Promise<void>;
+  redirectToAppropriateRoute: () => void;
 }
 
 // Create the context with default values
@@ -26,6 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   checkAuth: async () => {},
   logout: async () => {},
   updateUserType: async () => {},
+  redirectToAppropriateRoute: () => {},
 });
 
 // Custom hook to use the auth context
@@ -47,9 +50,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const response = await fetch('http://localhost:5000/api/auth/current', {
         method: 'GET',
         credentials: 'include', // Important for cookies
-      });
-
-      if (response.ok) {
+      });      if (response.ok) {
         const userData = await response.json();
         setUser(userData);
       } else {
@@ -63,6 +64,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Function to redirect to appropriate route based on user state
+  const redirectToAppropriateRoute = () => {
+    if (!user) return;
+    
+    // If user doesn't have a userType set, redirect to profile setup
+    if (!user.userType || user.userType === null) {
+      window.location.href = '/profile-setup';
+      return;
+    }
+    
+    // If user has a role, redirect to dashboard
+    window.location.href = '/dashboard';
+  };
+
   // Logout function
   const logout = async () => {
     try {
@@ -71,6 +86,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         credentials: 'include',
       });
       setUser(null);
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -101,7 +117,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     checkAuth();
   }, []);
-
   // Context value
   const value = {
     user,
@@ -110,6 +125,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     checkAuth,
     logout,
     updateUserType,
+    redirectToAppropriateRoute,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

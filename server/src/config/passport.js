@@ -17,19 +17,15 @@ module.exports = (passport) => {
 
           if (user) {
             // User exists, return the user
-            return done(null, user);
-          } else {
-            // Determine user type (recruiter or candidate)
-            // This will be updated later based on user selection during registration
-            const userType = 'candidate'; // Default to candidate
-
-            // Create a new user
+            return done(null, user);          } else {
+            // Create a new user without setting userType initially
+            // User will choose their role during profile setup
             user = new User({
               googleId: profile.id,
               name: profile.displayName,
               email: profile.emails[0].value,
               avatar: profile.photos[0].value,
-              userType: userType,
+              userType: null, // Let user choose during profile setup
             });
 
             await user.save();

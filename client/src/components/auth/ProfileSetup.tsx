@@ -14,11 +14,16 @@ const ProfileSetup = () => {
       navigate('/login');
     }
   }, [isAuthenticated, loading, navigate]);
-  
-  // Handle user type selection
+    // Handle user type selection
   const handleUserTypeSelection = async (userType: 'recruiter' | 'candidate') => {
-    await updateUserType(userType);
-    navigate('/dashboard');
+    try {
+      await updateUserType(userType);
+      // Redirect to dashboard after successful update
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Failed to update user type:', error);
+      // You might want to show an error message here
+    }
   };
   
   if (loading) {

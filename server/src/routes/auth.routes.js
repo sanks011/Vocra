@@ -19,7 +19,14 @@ router.get(
   }),
   (req, res) => {
     // Successful authentication
-    res.redirect('http://localhost:3000/profile-setup');
+    // Check if user has a userType set
+    if (req.user && req.user.userType && req.user.userType !== null) {
+      // User has a role, redirect to dashboard
+      res.redirect('http://localhost:3000/dashboard');
+    } else {
+      // User doesn't have a role set, redirect to profile setup
+      res.redirect('http://localhost:3000/profile-setup');
+    }
   }
 );
 
