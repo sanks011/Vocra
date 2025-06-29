@@ -5,11 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Calendar, Clock, Play, CheckCircle, XCircle, AlertCircle, VideoIcon } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import PhoneNumberDialog from '@/components/interviews/PhoneNumberDialog';
 
 const InterviewDashboard = () => {
   const { user } = useAuth();
   const [interviews, setInterviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
+  const [selectedInterviewId, setSelectedInterviewId] = useState<string | null>(null);
+  const [startingInterview, setStartingInterview] = useState(false);
 
   useEffect(() => {
     fetchInterviews();
@@ -35,28 +39,40 @@ const InterviewDashboard = () => {
       setLoading(false);
     }
   };
+  const startInterview = async (interviewId: string) => {
+    setSelectedInterviewId(interviewId);
+    setPhoneDialogOpen(true);
+  };
 
-  const startInterview = async (interviewId) => {
+  const handlePhoneSubmit = async (phoneNumber: string) => {
+    if (!selectedInterviewId) return;
+    
+    setStartingInterview(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/interviews/${interviewId}/start`, {
+      const response = await fetch(`http://localhost:5000/api/interviews/${selectedInterviewId}/start`, {
         method: 'POST',
-        credentials: 'include'
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ phoneNumber })
       });
       
       if (response.ok) {
         const data = await response.json();
-        // Open interview call in new window
-        window.open(data.callUrl, '_blank', 'width=800,height=600');
+        alert(`Interview call dispatched successfully! You will receive a call at ${phoneNumber} shortly.`);
         
         // Refresh interviews to update status
         fetchInterviews();
       } else {
         const error = await response.json();
-        alert(error.message || 'Failed to start interview');
+        throw new Error(error.message || 'Failed to start interview');
       }
     } catch (error) {
       console.error('Error starting interview:', error);
-      alert('Failed to start interview. Please try again.');
+      throw error; // Re-throw to be handled by the dialog
+    } finally {
+      setStartingInterview(false);
     }
   };
 
@@ -249,8 +265,14 @@ const InterviewDashboard = () => {
               </CardContent>
             </Card>
           ))
-        )}
-      </div>
+        )}      </div>
+
+      <PhoneNumberDialog
+        isOpen={phoneDialogOpen}
+        onClose={() => setPhoneDialogOpen(false)}
+        onSubmit={handlePhoneSubmit}
+        loading={startingInterview}
+      />
     </div>
   );
 };

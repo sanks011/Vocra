@@ -48,18 +48,18 @@ exports.scheduleInterview = async (jobId, candidateId, resumeUrl) => {
         // Continue without CV processing
         interview.cvText = 'CV processing failed. Please conduct interview based on job requirements.';
       }
-    }
-
-    // Create AI agent for this interview
+    }    // Create AI agent for this interview
     try {
       const agent = await omnidimensionService.createInterviewAgent(
         interview.jobContext,
         interview.cvText || 'No CV provided'
       );
       interview.agentId = agent.id;
+      console.log(`Agent created successfully with ID: ${agent.id}`);
     } catch (error) {
       console.error('Agent creation failed:', error.message);
       // Continue without agent - manual interview fallback
+      interview.agentId = null;
     }
 
     await interview.save();
@@ -119,10 +119,11 @@ exports.getRecruiterInterviews = async (req, res) => {
 exports.startInterview = async (req, res) => {
   try {
     const { interviewId } = req.params;
+    const { phoneNumber } = req.body; // Phone number is now required
     const candidateId = req.user.id;
 
     const interview = await Interview.findById(interviewId)
-      .populate('candidateId', 'name email');
+      .populate('candidateId', 'name email phone');
 
     if (!interview) {
       return res.status(404).json({ message: 'Interview not found' });
@@ -146,19 +147,50 @@ exports.startInterview = async (req, res) => {
       interview.status = 'expired';
       await interview.save();
       return res.status(400).json({ message: 'Interview has expired' });
+    }    // Check if phone number is provided
+    const candidatePhone = phoneNumber || interview.candidateId.phone;
+    if (!candidatePhone) {
+      return res.status(400).json({ 
+        message: 'Phone number is required for the interview. Please provide your phone number.' 
+      });
+    }
+
+    // Ensure we have an agent ID - create one if missing
+    if (!interview.agentId) {
+      console.log('No agent ID found, creating agent for interview...');
+      try {
+        const agent = await omnidimensionService.createInterviewAgent(
+          interview.jobContext,
+          interview.cvText || 'No CV provided'
+        );
+        interview.agentId = agent.id;
+        await interview.save();
+        console.log(`Agent created with ID: ${agent.id}`);
+      } catch (error) {
+        console.error('Failed to create agent:', error.message);
+        return res.status(500).json({ 
+          message: 'Failed to create interview agent. Please try again later.' 
+        });
+      }
     }
 
     // Start the call with Omnidimension
     try {
-      const callData = await omnidimensionService.startInterviewCall(
+      const callContext = {
+        candidate_name: interview.candidateId.name,
+        job_title: interview.jobContext.title,
+        company: interview.jobContext.company,
+        cv_summary: interview.cvText || 'No CV available'
+      };      const callData = await omnidimensionService.createCallSession(
         interview.agentId,
-        interview.candidateId.name,
-        interview.candidateId.email
+        candidatePhone,
+        callContext
       );
 
+      console.log('Call dispatch successful:', callData);
+
       // Update interview with call details
-      interview.callId = callData.id;
-      interview.callUrl = callData.url;
+      interview.callId = callData.call_id || callData.id || 'unknown';
       interview.status = 'in_progress';
       interview.startedAt = new Date();
       interview.attemptCount += 1;
@@ -166,14 +198,17 @@ exports.startInterview = async (req, res) => {
       await interview.save();
 
       res.status(200).json({
-        message: 'Interview started successfully',
-        callUrl: callData.url,
-        callId: callData.id,
-        interview: interview
+        message: 'Interview call dispatched successfully. You will receive a call shortly.',
+        callId: interview.callId,
+        interview: interview,
+        phoneNumber: candidatePhone
       });
     } catch (error) {
       console.error('Failed to start call:', error);
-      res.status(500).json({ message: 'Failed to start interview call' });
+      res.status(500).json({ 
+        message: 'Failed to start interview call',
+        error: error.message 
+      });
     }
   } catch (error) {
     console.error('Error starting interview:', error);
@@ -200,17 +235,14 @@ exports.getInterviewStatus = async (req, res) => {
     if (interview.candidateId._id.toString() !== userId && 
         interview.recruiterId._id.toString() !== userId) {
       return res.status(403).json({ message: 'Unauthorized' });
-    }
-
-    // If interview has a call ID, get latest status from Omnidimension
+    }    // If interview has a call ID, get latest status from Omnidimension
     if (interview.callId && interview.status === 'in_progress') {
       try {
-        const callDetails = await omnidimensionService.getCallDetails(interview.callId);
+        const callDetails = await omnidimensionService.getCallAnalytics(interview.callId);
         
-        if (callDetails.status === 'completed') {
-          // Interview completed, get analysis
-          const analysis = await omnidimensionService.getCallAnalysis(interview.callId);
-          const parsedAnalysis = omnidimensionService.parseInterviewAnalysis(analysis);
+        if (callDetails.status === 'completed' || callDetails.call_ended_at) {
+          // Interview completed, parse analysis
+          const parsedAnalysis = omnidimensionService.parseInterviewAnalysis(callDetails);
           
           interview.status = 'completed';
           interview.completedAt = new Date();
