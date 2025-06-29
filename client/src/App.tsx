@@ -15,6 +15,15 @@ import { AuthenticatedLayout } from "./components/layout/authenticated-layout";
 import AuthNavbar from "./components/auth/AuthNavbar";
 import { useAuth } from "./context/AuthContext";
 
+// Import new pages
+import Analytics from "./pages/Analytics";
+import ManageJobs from "./pages/ManageJobs";
+import CreateJob from "./pages/CreateJob";
+import Candidates from "./pages/Candidates";
+import Jobs from "./pages/Jobs";
+import Applications from "./pages/Applications";
+import Profile from "./pages/Profile";
+
 const queryClient = new QueryClient();
 
 // Protected Route Component with role-based redirects
@@ -120,30 +129,22 @@ const App = () => (
               </TooltipProvider>
             </RoleBasedRoute>
           } />
-          
-          {/* Analytics Routes */}
+            {/* Analytics Routes */}
           <Route path="/analytics" element={
             <RoleBasedRoute>
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">Analytics</h1>
-                    <p>Analytics dashboard will be implemented here.</p>
-                  </div>
+                  <Analytics />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </RoleBasedRoute>
           } />
-          
-          {/* Job Management Routes */}
+            {/* Job Management Routes */}
           <Route path="/jobs/manage" element={
             <ProtectedRoute requireRole="recruiter">
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">Manage Jobs</h1>
-                    <p>Job management interface will be implemented here.</p>
-                  </div>
+                  <ManageJobs />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
@@ -152,10 +153,7 @@ const App = () => (
             <ProtectedRoute requireRole="recruiter">
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">Create Job</h1>
-                    <p>Job creation form will be implemented here.</p>
-                  </div>
+                  <CreateJob />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
@@ -164,36 +162,25 @@ const App = () => (
             <ProtectedRoute requireRole="recruiter">
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">Job Analytics</h1>
-                    <p>Job analytics dashboard will be implemented here.</p>
-                  </div>
+                  <Analytics />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
           } />
-          
-          {/* Candidate Management Routes */}
+            {/* Candidate Management Routes */}
           <Route path="/candidates" element={
             <ProtectedRoute requireRole="recruiter">
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">All Candidates</h1>
-                    <p>Candidate management interface will be implemented here.</p>
-                  </div>
+                  <Candidates />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
-          } />
-          <Route path="/candidates/shortlisted" element={
+          } />          <Route path="/candidates/shortlisted" element={
             <ProtectedRoute requireRole="recruiter">
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">Shortlisted Candidates</h1>
-                    <p>Shortlisted candidates will be shown here.</p>
-                  </div>
+                  <Candidates />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
@@ -202,10 +189,7 @@ const App = () => (
             <ProtectedRoute requireRole="recruiter">
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">Interview Pool</h1>
-                    <p>Candidates in interview process will be shown here.</p>
-                  </div>
+                  <Candidates />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
@@ -248,16 +232,12 @@ const App = () => (
               </TooltipProvider>
             </ProtectedRoute>
           } />
-          
-          {/* Candidate-specific Routes */}
+            {/* Candidate-specific Routes */}
           <Route path="/profile" element={
             <ProtectedRoute requireRole="candidate">
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">My Profile</h1>
-                    <p>Candidate profile management will be implemented here.</p>
-                  </div>
+                  <Profile />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
@@ -266,10 +246,7 @@ const App = () => (
             <ProtectedRoute requireRole="candidate">
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">My Applications</h1>
-                    <p>Job applications tracking will be implemented here.</p>
-                  </div>
+                  <Applications />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
@@ -278,10 +255,7 @@ const App = () => (
             <ProtectedRoute requireRole="candidate">
               <TooltipProvider>
                 <AuthenticatedLayout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">Saved Jobs</h1>
-                    <p>Saved jobs will be shown here.</p>
-                  </div>
+                  <Applications />
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
@@ -322,9 +296,16 @@ const App = () => (
               </TooltipProvider>
             </ProtectedRoute>
           } />
-          
-          {/* Common Routes */}
-          <Route path="/jobs" element={<div className="pt-16"><JobListings /></div>} />
+            {/* Common Routes */}
+          <Route path="/jobs" element={
+            <RoleBasedRoute>
+              <TooltipProvider>
+                <AuthenticatedLayout>
+                  <Jobs />
+                </AuthenticatedLayout>
+              </TooltipProvider>
+            </RoleBasedRoute>
+          } />
           <Route path="/settings/account" element={
             <RoleBasedRoute>
               <TooltipProvider>

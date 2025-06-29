@@ -40,8 +40,7 @@ const jobSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  },
-  applicants: [{
+  },  applicants: [{
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
@@ -54,6 +53,36 @@ const jobSchema = new mongoose.Schema({
     appliedDate: {
       type: Date,
       default: Date.now
+    },
+    coverLetter: {
+      type: String,
+      default: ''
+    },
+    resumeUrl: {
+      type: String,
+      default: ''
+    },
+    resumeFileName: {
+      type: String,
+      default: ''
+    },
+    applicationDetails: {
+      yearsOfExperience: {
+        type: Number,
+        default: 0
+      },
+      expectedSalary: {
+        type: String,
+        default: ''
+      },
+      availability: {
+        type: String,
+        default: ''
+      },
+      whyInterested: {
+        type: String,
+        default: ''
+      }
     }
   }],
   postedDate: {

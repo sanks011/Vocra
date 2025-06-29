@@ -332,7 +332,34 @@ exports.applyForJob = async (req, res) => {
       return res.status(400).json({ message: 'Already applied for this job' });
     }
 
-    job.applicants.push({ user: req.user.id });
+    // Extract application details from request body
+    const {
+      coverLetter = '',
+      yearsOfExperience = 0,
+      expectedSalary = '',
+      availability = '',
+      whyInterested = ''
+    } = req.body;
+
+    // Build application object
+    const applicationData = {
+      user: req.user.id,
+      coverLetter,
+      applicationDetails: {
+        yearsOfExperience: parseInt(yearsOfExperience) || 0,
+        expectedSalary,
+        availability,
+        whyInterested
+      }
+    };
+
+    // If a resume file was uploaded, add file information
+    if (req.file) {
+      applicationData.resumeUrl = `/uploads/resumes/${req.file.filename}`;
+      applicationData.resumeFileName = req.file.originalname;
+    }
+
+    job.applicants.push(applicationData);
     await job.save();
 
     res.status(200).json({ message: 'Application submitted successfully' });
@@ -412,5 +439,122 @@ exports.getMyJobs = async (req, res) => {
       success: false,
       message: 'Internal server error'
     });
+  }
+};
+
+// Get all applications for recruiter's jobs
+exports.getRecruiterApplications = async (req, res) => {
+  try {
+    const recruiterId = req.user.id;
+    
+    // Find all jobs posted by this recruiter with their applicants
+    const jobs = await Job.find({ recruiter: recruiterId })
+      .populate({
+        path: 'applicants.user',
+        select: 'name email avatar profile'
+      })
+      .lean();
+    
+    // Flatten the applications array
+    const applications = [];
+    jobs.forEach(job => {
+      if (job.applicants && job.applicants.length > 0) {
+        job.applicants.forEach(applicant => {
+          applications.push({
+            job: {
+              _id: job._id,
+              title: job.title,
+              company: job.company,
+              location: job.location,
+              type: job.type
+            },
+            candidate: applicant.user,
+            status: applicant.status,
+            appliedDate: applicant.appliedDate,
+            coverLetter: applicant.coverLetter,
+            resumeUrl: applicant.resumeUrl,
+            resumeFileName: applicant.resumeFileName,
+            applicationDetails: applicant.applicationDetails
+          });
+        });
+      }
+    });
+    
+    // Sort by applied date (newest first)
+    applications.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
+    
+    res.status(200).json(applications);
+  } catch (error) {
+    console.error('Error getting recruiter applications:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Get applications for a specific candidate
+exports.getCandidateApplications = async (req, res) => {
+  try {
+    const candidateId = req.user.id;
+    
+    // Find all jobs where this candidate has applied
+    const jobs = await Job.find({
+      'applicants.user': candidateId
+    })
+    .populate('recruiter', 'name email company')
+    .lean();
+    
+    // Extract applications for this candidate
+    const applications = [];
+    jobs.forEach(job => {
+      const candidateApplication = job.applicants.find(
+        app => app.user.toString() === candidateId
+      );
+        if (candidateApplication) {
+        applications.push({
+          _id: `${job._id}_${candidateId}`,
+          job: {
+            _id: job._id,
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            type: job.type,
+            salary: job.salary,
+            description: job.description
+          },
+          status: candidateApplication.status,
+          appliedDate: candidateApplication.appliedDate,
+          coverLetter: candidateApplication.coverLetter,
+          resumeUrl: candidateApplication.resumeUrl,
+          resumeFileName: candidateApplication.resumeFileName,
+          applicationDetails: candidateApplication.applicationDetails,
+          recruiter: job.recruiter
+        });
+      }
+    });
+    
+    // Sort by applied date (newest first)
+    applications.sort((a, b) => new Date(b.appliedDate) - new Date(a.appliedDate));
+    
+    res.status(200).json(applications);
+  } catch (error) {
+    console.error('Error getting candidate applications:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Check if candidate has applied for a specific job
+exports.checkApplicationStatus = async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
+    const hasApplied = job.applicants.some(app => app.user.toString() === req.user.id);
+    
+    res.status(200).json({ hasApplied });
+  } catch (error) {
+    console.error('Error checking application status:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

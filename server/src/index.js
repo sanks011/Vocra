@@ -48,6 +48,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Serve uploaded files
+app.use('/uploads', express.static('src/uploads'));
+
 // Configure Passport
 require('./config/passport')(passport);
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { isAuthenticated } = require('../middleware/auth.middleware');
+const { uploadResume } = require('../middleware/upload.middleware');
 const jobsController = require('../controllers/jobs.controller');
 
 // Route handlers using the controller functions
@@ -34,9 +35,18 @@ router.put('/:id', isAuthenticated, jobsController.updateJob);
 router.delete('/:id', isAuthenticated, jobsController.deleteJob);
 
 // POST /api/jobs/:id/apply - Apply for a job (candidates only)
-router.post('/:id/apply', isAuthenticated, jobsController.applyForJob);
+router.post('/:id/apply', isAuthenticated, uploadResume, jobsController.applyForJob);
+
+// GET /api/jobs/:id/application-status - Check if user has applied for a job
+router.get('/:id/application-status', isAuthenticated, jobsController.checkApplicationStatus);
 
 // PUT /api/jobs/:id/applicants/:applicantId - Update application status
 router.put('/:id/applicants/:applicantId', isAuthenticated, jobsController.updateApplicationStatus);
+
+// GET /api/jobs/recruiter/applications - Get all applications for recruiter's jobs
+router.get('/recruiter/applications', isAuthenticated, jobsController.getRecruiterApplications);
+
+// GET /api/jobs/candidate/applications - Get applications for the authenticated candidate
+router.get('/candidate/applications', isAuthenticated, jobsController.getCandidateApplications);
 
 module.exports = router;

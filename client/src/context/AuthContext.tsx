@@ -8,6 +8,30 @@ interface User {
   email: string;
   avatar: string;
   userType: 'recruiter' | 'candidate' | null;
+  profile?: {
+    skills?: string[];
+    experience?: Array<{
+      title: string;
+      company: string;
+      startDate: string;
+      endDate: string;
+      description: string;
+    }>;
+    education?: Array<{
+      institution: string;
+      degree: string;
+      field: string;
+      startDate: string;
+      endDate: string;
+    }>;
+    resume?: string;
+    company?: {
+      name: string;
+      size: string;
+      industry: string;
+      description: string;
+    };
+  };
 }
 
 interface AuthContextType {
