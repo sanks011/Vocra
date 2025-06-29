@@ -30,16 +30,20 @@ exports.logout = (req, res) => {
       console.error('Logout error:', err);
       return res.status(500).json({ message: 'Error logging out' });
     }
-    
     // Destroy the session completely
     req.session.destroy((err) => {
       if (err) {
         console.error('Session destroy error:', err);
         return res.status(500).json({ message: 'Error destroying session' });
       }
-      
-      // Clear the session cookie
-      res.clearCookie('connect.sid');
+      // Clear the session cookie with correct options for cross-site
+      res.clearCookie('connect.sid', {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        domain: process.env.COOKIE_DOMAIN || undefined
+      });
       res.status(200).json({ message: 'Successfully logged out' });
     });
   });
