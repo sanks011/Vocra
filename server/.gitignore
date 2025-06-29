@@ -1,5 +1,10 @@
 node_modules/
+# Environment variables - make sure ALL env files are ignored
 .env
+.env.local
+.env.development
+.env.production
+.env.*
 npm-debug.log
 yarn-error.log
 .DS_Store

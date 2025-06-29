@@ -14,7 +14,7 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get(
   '/google/callback',
   passport.authenticate('google', { 
-    failureRedirect: 'http://localhost:3000/login', 
+    failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:3000'}/login`, 
     session: true 
   }),
   (req, res) => {
@@ -22,10 +22,10 @@ router.get(
     // Check if user has a userType set
     if (req.user && req.user.userType && req.user.userType !== null) {
       // User has a role, redirect to dashboard
-      res.redirect('http://localhost:3000/dashboard');
+      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/dashboard`);
     } else {
       // User doesn't have a role set, redirect to profile setup
-      res.redirect('http://localhost:3000/profile-setup');
+      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/profile-setup`);
     }
   }
 );
