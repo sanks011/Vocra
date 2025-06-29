@@ -2,6 +2,26 @@ const express = require('express');
 const router = express.Router();
 const { isAuthenticated } = require('../middleware/auth.middleware');
 const interviewController = require('../controllers/interview.controller');
+const webhookController = require('../controllers/webhook.controller');
+
+// Middleware to handle CORS for webhook endpoints
+const webhookCors = (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+};
+
+// Webhook endpoint for Omnidimension to send interview results
+router.post('/webhook/omnidimension', webhookCors, webhookController.handleOmnidimensionWebhook);
+
+// Context endpoint for Omnidimension to get interview details
+router.get('/webhook/context', webhookCors, webhookController.getInterviewContext);
 
 // Candidate routes
 router.get('/candidate/interviews', isAuthenticated, interviewController.getCandidateInterviews);

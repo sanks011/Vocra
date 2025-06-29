@@ -1,7 +1,6 @@
 const axios = require('axios');
 
-class OmnidimensionService {
-  constructor() {
+class OmnidimensionService {  constructor() {
     this.apiKey = process.env.OMNIDIMENSION_API_KEY;
     this.baseUrl = process.env.OMNIDIMENSION_BASE_URL || 'https://backend.omnidim.io/api/v1';
     this.client = axios.create({
@@ -20,8 +19,7 @@ class OmnidimensionService {
   async createInterviewAgent(jobContext, cvContext) {
     try {
       const agentInstructions = this.generateAgentInstructions(jobContext, cvContext);
-      
-      const agentData = {
+        const agentData = {
         name: `Interview Agent - ${jobContext.title}`,
         context_breakdown: [
           {
@@ -36,12 +34,50 @@ class OmnidimensionService {
         },
         model: {
           model: "gpt-4o-mini",
-          temperature: 0.7        },
+          temperature: 0.7
+        },
         voice: {
           provider: "eleven_labs",
           voice_id: "JBFqnCBsd6RMkjVDRZzb"
         },
-        call_type: "Outgoing"
+        call_type: "Outgoing",
+        post_call_actions: {
+          webhook: {
+            enabled: true,
+            url: `${process.env.WEBHOOK_BASE_URL || 'http://localhost:5000'}/api/interviews/webhook/omnidimension`,
+            include: ["summary", "fullConversation"],
+            extracted_variables: [
+              {
+                key: "technical_score",
+                prompt: "Rate the candidate's technical skills from 0-100 based on their answers to technical questions"
+              },
+              {
+                key: "communication_score", 
+                prompt: "Rate the candidate's communication skills from 0-100 based on clarity and articulation"
+              },
+              {
+                key: "confidence_score",
+                prompt: "Rate the candidate's confidence level from 0-100 based on their overall demeanor"
+              },
+              {
+                key: "strengths",
+                prompt: "List the candidate's main strengths based on the interview"
+              },
+              {
+                key: "weaknesses", 
+                prompt: "List areas where the candidate could improve"
+              },
+              {
+                key: "recommendation",
+                prompt: "Provide a hiring recommendation: strongly_recommend, recommend, neutral, not_recommend, or strongly_not_recommend"
+              },
+              {
+                key: "questions",
+                prompt: "List the main questions asked during the interview"
+              }
+            ]
+          }
+        }
       };
 
       const response = await this.client.post('/agents/create', agentData);
