@@ -57,7 +57,10 @@ const Navbar = () => {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Pricing</BreadcrumbPage>
+                  <BreadcrumbLink href="/features" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md hover:bg-purple-500/20 hover:text-purple-200 transition-colors">
+                    <ComponentIcon size={16} strokeWidth={2} aria-hidden="true" />
+                    Pricing
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
