@@ -9,7 +9,7 @@ export function Main({ className, children, ...props }: MainProps) {
   return (
     <main
       className={cn(
-        'flex flex-1 flex-col gap-4 p-6 pt-0 bg-black',
+        'flex flex-1 flex-col gap-4 p-6 pt-0 bg-[#131520]',
         className
       )}
       {...props}

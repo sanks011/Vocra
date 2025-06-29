@@ -33,11 +33,27 @@ import {
   DollarSign,
   Download,
   Bell,
-  User,
-  BarChart3,
+  User,  BarChart3,
   FileText,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  LineChart,
+  PieChart
 } from 'lucide-react';
+import { 
+  LineChart as RechartsLineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  Legend,
+  ResponsiveContainer 
+} from 'recharts';
 
 // Mock data for demonstration
 const jobPostings = [
@@ -78,6 +94,114 @@ const jobPostings = [
     description: "Node.js backend engineer for scalable microservices."
   }
 ];
+
+// Sample chart data
+const lineChartData = [
+  { name: 'Jan', applications: 12, interviews: 8 },
+  { name: 'Feb', applications: 19, interviews: 12 },
+  { name: 'Mar', applications: 15, interviews: 10 },
+  { name: 'Apr', applications: 27, interviews: 18 },
+  { name: 'May', applications: 32, interviews: 24 },
+  { name: 'Jun', applications: 25, interviews: 16 },
+];
+
+const barChartData = [
+  { name: 'Development', count: 32 },
+  { name: 'Design', count: 21 },
+  { name: 'Marketing', count: 15 },
+  { name: 'Management', count: 9 },
+  { name: 'Support', count: 5 },
+];
+
+const pieChartData = [
+  { name: 'Filled', value: 12 },
+  { name: 'Open', value: 8 },
+  { name: 'Interview', value: 5 },
+];
+
+const COLORS = ['#626F94', '#8394E0', '#A2B3F3'];
+
+// Chart Components
+const ApplicationsChart = () => (
+  <div className="h-[250px] w-full">
+    <ResponsiveContainer width="100%" height="100%">
+      <RechartsLineChart data={lineChartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+        <XAxis dataKey="name" stroke="#888" />
+        <YAxis stroke="#888" />
+        <RechartsTooltip 
+          contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} 
+          labelStyle={{ color: 'white' }}
+        />
+        <Legend />
+        <Line 
+          type="monotone" 
+          dataKey="applications" 
+          stroke="#626F94" 
+          strokeWidth={2}
+          dot={{ r: 3 }}
+          name="Applications"
+          activeDot={{ r: 5, strokeWidth: 0 }}
+        />
+        <Line 
+          type="monotone" 
+          dataKey="interviews" 
+          stroke="#8394E0" 
+          strokeWidth={2}
+          dot={{ r: 3 }}
+          name="Interviews"
+        />
+      </RechartsLineChart>
+    </ResponsiveContainer>
+  </div>
+);
+
+const JobCategoryChart = () => (
+  <ResponsiveContainer width="100%" height={250}>
+    <BarChart data={barChartData}>
+      <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+      <XAxis dataKey="name" stroke="#888" />
+      <YAxis stroke="#888" />
+      <RechartsTooltip 
+        contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} 
+        labelStyle={{ color: 'white' }}
+      />
+      <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+        {barChartData.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={['#626F94', '#8394E0', '#A2B3F3'][index % 3]} />
+        ))}
+      </Bar>
+    </BarChart>
+  </ResponsiveContainer>
+);
+
+const JobStatusChart = () => (
+  <ResponsiveContainer width="100%" height={250}>
+    <RechartsPieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+      <Pie
+        data={pieChartData}
+        cx="50%"
+        cy="50%"
+        innerRadius={60}
+        outerRadius={90}
+        fill="#8884d8"
+        paddingAngle={3}
+        dataKey="value"
+        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+        labelLine={false}
+      >
+        {pieChartData.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={['#626F94', '#8394E0', '#A2B3F3'][index % 3]} />
+        ))}
+      </Pie>
+      <RechartsTooltip 
+        contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} 
+        labelStyle={{ color: 'white' }}
+      />
+      <Legend />
+    </RechartsPieChart>
+  </ResponsiveContainer>
+);
 
 const interviews = [
   {
@@ -417,9 +541,7 @@ const DashboardContent = () => {
             <TabsTrigger value="analytics" className="data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none h-10 text-gray-300">
               Analytics
             </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4">
+          </TabsList>          <TabsContent value="overview" className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="bg-black/60 border-0 shadow-md">
                 <CardHeader>
@@ -508,6 +630,53 @@ const DashboardContent = () => {
                       </Button>
                     </>
                   )}
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-black/60 border-0 shadow-md">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white">Applications</CardTitle>
+                    <BarChart3 className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <CardDescription className="text-gray-400">
+                    Monthly application trends
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ApplicationsChart />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-black/60 border-0 shadow-md">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white">Job Categories</CardTitle>
+                    <PieChart className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <CardDescription className="text-gray-400">
+                    Distribution by category
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <JobCategoryChart />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-black/60 border-0 shadow-md">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white">Job Status</CardTitle>
+                    <LineChart className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <CardDescription className="text-gray-400">
+                    Status of job postings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <JobStatusChart />
                 </CardContent>
               </Card>
             </div>
@@ -662,10 +831,37 @@ const DashboardContent = () => {
                   <CardDescription className="text-gray-400">
                     {user?.userType === 'recruiter' ? 'Hiring performance' : 'Interview performance'}
                   </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-32 flex items-center justify-center text-gray-500">
-                    Chart placeholder - Integration with charting library needed
+                </CardHeader>                <CardContent>
+                  <div className="h-[250px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsLineChart data={lineChartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="name" stroke="#888" />
+                        <YAxis stroke="#888" />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} 
+                          labelStyle={{ color: 'white' }}
+                        />
+                        <Legend />
+                        <Line 
+                          type="monotone" 
+                          dataKey="applications" 
+                          stroke="#626F94" 
+                          strokeWidth={2}
+                          dot={{ r: 3 }}
+                          name="Applications"
+                          activeDot={{ r: 5, strokeWidth: 0 }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="interviews" 
+                          stroke="#8394E0" 
+                          strokeWidth={2}
+                          dot={{ r: 3 }}
+                          name="Interviews"
+                        />
+                      </RechartsLineChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
@@ -692,9 +888,46 @@ const DashboardContent = () => {
                       </span>
                       <span>
                         {user?.userType === 'recruiter' ? 'Applications: 50' : 'Applications: 200'}
-                      </span>
-                    </div>
+                      </span>                    </div>
                   </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="bg-black/60 border-0 shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-white">Applications & Interviews</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Monthly trend of applications and interviews
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ApplicationsChart />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-black/60 border-0 shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-white">Job Categories</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Distribution of jobs across categories
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <JobCategoryChart />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-black/60 border-0 shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-white">Job Status</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Current status of your job postings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <JobStatusChart />
                 </CardContent>
               </Card>
             </div>

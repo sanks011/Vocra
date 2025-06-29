@@ -32,8 +32,26 @@ import {
   DollarSign,
   Download,
   Bell,
-  User
+  User,
+  BarChart3,
+  LineChart,
+  PieChart
 } from 'lucide-react';
+import { 
+  LineChart as RechartsLineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  Legend,
+  ResponsiveContainer 
+} from 'recharts';
 
 // Mock data for demonstration
 const jobPostings = [
@@ -94,6 +112,32 @@ const interviews = [
   }
 ];
 
+// Sample chart data
+const lineChartData = [
+  { name: 'Jan', applications: 12, interviews: 8 },
+  { name: 'Feb', applications: 19, interviews: 12 },
+  { name: 'Mar', applications: 15, interviews: 10 },
+  { name: 'Apr', applications: 27, interviews: 18 },
+  { name: 'May', applications: 32, interviews: 24 },
+  { name: 'Jun', applications: 25, interviews: 16 },
+];
+
+const barChartData = [
+  { name: 'Development', count: 32 },
+  { name: 'Design', count: 21 },
+  { name: 'Marketing', count: 15 },
+  { name: 'Management', count: 9 },
+  { name: 'Support', count: 5 },
+];
+
+const pieChartData = [
+  { name: 'Filled', value: 12 },
+  { name: 'Open', value: 8 },
+  { name: 'Interview', value: 5 },
+];
+
+const COLORS = ['#626F94', '#8394E0', '#A2B3F3'];
+
 // Job Creation Dialog Component
 const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
   const [open, setOpen] = useState(false);
@@ -123,8 +167,7 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+      <DialogTrigger asChild>        <Button className="bg-gray-700 hover:bg-gray-600">
           <PlusCircle className="w-4 h-4 mr-2" />
           Create Job
         </Button>
@@ -208,8 +251,7 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
           <div className="flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} className="border-gray-700 text-gray-300 hover:bg-gray-800">
               Cancel
-            </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+            </Button>            <Button type="submit" className="bg-gray-700 hover:bg-gray-600">
               Create Job
             </Button>
           </div>
@@ -224,38 +266,38 @@ const StatsCards = ({ userType }: { userType: string }) => {
   if (userType === 'recruiter') {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-black/60 border-0 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Total Jobs</CardTitle>
-            <Briefcase className="h-4 w-4 text-blue-500" />
+            <Briefcase className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{jobPostings.length}</div>
             <p className="text-xs text-gray-400">
-              <span className="text-green-500">+2</span> from last month
+              <span className="text-gray-300">+2</span> from last month
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-black/60 border-0 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Total Applicants</CardTitle>
-            <Users className="h-4 w-4 text-green-500" />
+            <Users className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
               {jobPostings.reduce((sum, job) => sum + job.applicants, 0)}
             </div>
             <p className="text-xs text-gray-400">
-              <span className="text-green-500">+12%</span> from last month
+              <span className="text-gray-300">+12%</span> from last month
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-black/60 border-0 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Active Jobs</CardTitle>
-            <TrendingUp className="h-4 w-4 text-orange-500" />
+            <TrendingUp className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
@@ -267,15 +309,15 @@ const StatsCards = ({ userType }: { userType: string }) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-black/60 border-0 shadow-md">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Interviews</CardTitle>
-            <Calendar className="h-4 w-4 text-purple-500" />
+            <Calendar className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{interviews.length}</div>
             <p className="text-xs text-gray-400">
-              <span className="text-blue-500">1</span> scheduled today
+              <span className="text-gray-300">1</span> scheduled today
             </p>
           </CardContent>
         </Card>
@@ -287,59 +329,149 @@ const StatsCards = ({ userType }: { userType: string }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card className="bg-gray-900 border-gray-800">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-gray-300">Practice Sessions</CardTitle>
-          <Calendar className="h-4 w-4 text-blue-500" />
+        <CardHeader>
+          <CardTitle className="text-white">Practice Sessions</CardTitle>
+          <CardDescription className="text-gray-400">
+            <span className="text-gray-300">+3</span> this week
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-white">12</div>
           <p className="text-xs text-gray-400">
-            <span className="text-green-500">+3</span> this week
+            Completed practice sessions
           </p>
         </CardContent>
       </Card>
 
       <Card className="bg-gray-900 border-gray-800">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-gray-300">Average Score</CardTitle>
-          <TrendingUp className="h-4 w-4 text-green-500" />
+        <CardHeader>
+          <CardTitle className="text-white">Average Score</CardTitle>
+          <CardDescription className="text-gray-400">
+            <span className="text-gray-300">+0.5</span> from last month
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-white">8.2</div>
           <p className="text-xs text-gray-400">
-            <span className="text-green-500">+0.5</span> from last month
+            Based on your last 10 interviews
           </p>
         </CardContent>
       </Card>
 
       <Card className="bg-gray-900 border-gray-800">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-gray-300">Skills Improved</CardTitle>
-          <Users className="h-4 w-4 text-orange-500" />
+        <CardHeader>
+          <CardTitle className="text-white">Skills Improved</CardTitle>
+          <CardDescription className="text-gray-400">
+            Communication, Problem Solving
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-white">7</div>
           <p className="text-xs text-gray-400">
-            Communication, Problem Solving
+            New skills acquired this month
           </p>
         </CardContent>
       </Card>
 
       <Card className="bg-gray-900 border-gray-800">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-gray-300">Applications</CardTitle>
-          <Briefcase className="h-4 w-4 text-purple-500" />
+        <CardHeader>
+          <CardTitle className="text-white">Applications</CardTitle>
+          <CardDescription className="text-gray-400">
+            <span className="text-gray-300">2</span> interviews scheduled
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-white">5</div>
           <p className="text-xs text-gray-400">
-            <span className="text-blue-500">2</span> interviews scheduled
+            Total applications submitted
           </p>
         </CardContent>
       </Card>
     </div>
   );
 };
+
+// Chart Components
+const ApplicationsChart = () => (
+  <div className="h-[250px] w-full">
+    <ResponsiveContainer width="100%" height="100%">
+      <RechartsLineChart data={lineChartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+        <XAxis dataKey="name" stroke="#888" />
+        <YAxis stroke="#888" />
+        <RechartsTooltip 
+          contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} 
+          labelStyle={{ color: 'white' }}
+        />
+        <Legend />
+        <Line 
+          type="monotone" 
+          dataKey="applications" 
+          stroke="#626F94" 
+          strokeWidth={2}
+          dot={{ r: 3 }}
+          name="Applications"
+          activeDot={{ r: 5, strokeWidth: 0 }}
+        />
+        <Line 
+          type="monotone" 
+          dataKey="interviews" 
+          stroke="#8394E0" 
+          strokeWidth={2}
+          dot={{ r: 3 }}
+          name="Interviews"
+        />
+      </RechartsLineChart>
+    </ResponsiveContainer>
+  </div>
+);
+
+const JobCategoryChart = () => (
+  <ResponsiveContainer width="100%" height={250}>
+    <BarChart data={barChartData}>
+      <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+      <XAxis dataKey="name" stroke="#888" />
+      <YAxis stroke="#888" />
+      <RechartsTooltip 
+        contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} 
+        labelStyle={{ color: 'white' }}
+      />
+      <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+        {barChartData.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={['#626F94', '#8394E0', '#A2B3F3'][index % 3]} />
+        ))}
+      </Bar>
+    </BarChart>
+  </ResponsiveContainer>
+);
+
+const JobStatusChart = () => (
+  <ResponsiveContainer width="100%" height={250}>
+    <RechartsPieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+      <Pie
+        data={pieChartData}
+        cx="50%"
+        cy="50%"
+        innerRadius={60}
+        outerRadius={90}
+        fill="#8884d8"
+        paddingAngle={3}
+        dataKey="value"
+        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+        labelLine={false}
+      >
+        {pieChartData.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={['#626F94', '#8394E0', '#A2B3F3'][index % 3]} />
+        ))}
+      </Pie>
+      <RechartsTooltip 
+        contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} 
+        labelStyle={{ color: 'white' }}
+      />
+      <Legend />
+    </RechartsPieChart>
+  </ResponsiveContainer>
+);
 
 // Dashboard content component
 const DashboardContent = () => {
@@ -402,9 +534,7 @@ const DashboardContent = () => {
             <TabsTrigger value="analytics" className="data-[state=active]:bg-gray-800 text-gray-300">
               Analytics
             </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4">
+          </TabsList>          <TabsContent value="overview" className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
@@ -416,36 +546,34 @@ const DashboardContent = () => {
                 <CardContent className="space-y-4">
                   {user?.userType === 'recruiter' ? (
                     <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="flex items-center space-x-3">                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                         <span className="text-gray-300">New application for Frontend Developer</span>
                         <span className="text-xs text-gray-500 ml-auto">2 hours ago</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
                         <span className="text-gray-300">Interview completed: UI/UX Designer</span>
                         <span className="text-xs text-gray-500 ml-auto">5 hours ago</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                         <span className="text-gray-300">Job posting published: Backend Engineer</span>
                         <span className="text-xs text-gray-500 ml-auto">1 day ago</span>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="flex items-center space-x-3">                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                         <span className="text-gray-300">Applied to Frontend Developer role</span>
                         <span className="text-xs text-gray-500 ml-auto">1 hour ago</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
                         <span className="text-gray-300">Completed practice interview</span>
                         <span className="text-xs text-gray-500 ml-auto">3 hours ago</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                         <span className="text-gray-300">Profile view from TechCorp</span>
                         <span className="text-xs text-gray-500 ml-auto">6 hours ago</span>
                       </div>
@@ -463,8 +591,7 @@ const DashboardContent = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {user?.userType === 'recruiter' ? (
-                    <>
-                      <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
+                    <>                      <Button className="w-full justify-start bg-gray-700 hover:bg-gray-600">
                         <PlusCircle className="w-4 h-4 mr-2" />
                         Post New Job
                       </Button>
@@ -478,8 +605,7 @@ const DashboardContent = () => {
                       </Button>
                     </>
                   ) : (
-                    <>
-                      <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
+                    <>                      <Button className="w-full justify-start bg-gray-700 hover:bg-gray-600">
                         <Search className="w-4 h-4 mr-2" />
                         Browse Jobs
                       </Button>
@@ -493,6 +619,53 @@ const DashboardContent = () => {
                       </Button>
                     </>
                   )}
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white">Applications</CardTitle>
+                    <BarChart3 className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <CardDescription className="text-gray-400">
+                    Monthly application trends
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ApplicationsChart />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white">Job Categories</CardTitle>
+                    <PieChart className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <CardDescription className="text-gray-400">
+                    Distribution by category
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <JobCategoryChart />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white">Job Status</CardTitle>
+                    <LineChart className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <CardDescription className="text-gray-400">
+                    Status of job postings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <JobStatusChart />
                 </CardContent>
               </Card>
             </div>
@@ -561,7 +734,7 @@ const DashboardContent = () => {
                                 <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                                   <Edit className="w-4 h-4" />
                                 </Button>
-                                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
+                                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-gray-200">
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
                               </div>
@@ -642,9 +815,7 @@ const DashboardContent = () => {
                 </Card>
               </TabsContent>
             </>
-          )}
-
-          <TabsContent value="analytics" className="space-y-4">
+          )}          <TabsContent value="analytics" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
@@ -653,9 +824,36 @@ const DashboardContent = () => {
                     {user?.userType === 'recruiter' ? 'Hiring performance' : 'Interview performance'}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-32 flex items-center justify-center text-gray-500">
-                    Chart placeholder - Integration with charting library needed
+                <CardContent>                  <div className="h-[250px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsLineChart data={lineChartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="name" stroke="#888" />
+                        <YAxis stroke="#888" />
+                        <RechartsTooltip 
+                          contentStyle={{ backgroundColor: '#1F2937', border: 'none' }} 
+                          labelStyle={{ color: 'white' }}
+                        />
+                        <Legend />
+                        <Line 
+                          type="monotone" 
+                          dataKey="applications" 
+                          stroke="#626F94" 
+                          strokeWidth={2}
+                          dot={{ r: 3 }}
+                          name="Applications"
+                          activeDot={{ r: 5, strokeWidth: 0 }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="interviews" 
+                          stroke="#8394E0" 
+                          strokeWidth={2}
+                          dot={{ r: 3 }}
+                          name="Interviews"
+                        />
+                      </RechartsLineChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
@@ -688,6 +886,44 @@ const DashboardContent = () => {
                 </CardContent>
               </Card>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-white">Applications & Interviews</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Monthly trend of applications and interviews
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ApplicationsChart />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-white">Job Categories</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Distribution of jobs across categories
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <JobCategoryChart />
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <CardTitle className="text-white">Job Status</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Current status of your job postings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <JobStatusChart />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </Main>
@@ -711,8 +947,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="bg-gray-900 p-8 rounded-lg border border-gray-800">
-          <h2 className="text-2xl font-bold mb-4 text-white">Please complete your profile setup</h2>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <h2 className="text-2xl font-bold mb-4 text-white">Please complete your profile setup</h2>          <Button className="bg-gray-700 hover:bg-gray-600">
             <a href="/profile-setup">Complete Setup</a>
           </Button>
         </div>

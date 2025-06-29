@@ -13,16 +13,16 @@ export function AuthenticatedLayout({ children }: Props) {
   
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
-      <AppSidebar />
-      <div
+      <AppSidebar />      <div
         id='content'
         className={cn(
           'ml-auto w-full max-w-full',
-          'peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon)-1rem)]',
-          'peer-data-[state=expanded]:w-[calc(100%-var(--sidebar-width))]',
-          'sm:transition-[width] sm:duration-200 sm:ease-linear',
+          'peer-data-[state=collapsed]:md:w-[calc(100%-3.5rem)]',
+          'peer-data-[state=expanded]:md:w-[calc(100%-16rem)]',
+          'transition-all duration-200 ease-linear',
           'flex h-svh flex-col',
-          'bg-black text-white'
+          'bg-[#131520] text-white',
+          'relative'
         )}
       >
         {children}

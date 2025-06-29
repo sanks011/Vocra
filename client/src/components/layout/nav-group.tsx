@@ -23,7 +23,7 @@ export function NavGroup({ title, items }: NavGroup) {
   
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{title}</SidebarGroupLabel>
+      {state !== 'collapsed' && <SidebarGroupLabel>{title}</SidebarGroupLabel>}
       <SidebarMenu>
         {items.map((item) => {
           const key = `${item.title}-${item.url || 'group'}`;          if (!item.items) {
