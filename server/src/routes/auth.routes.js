@@ -14,18 +14,19 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get(
   '/google/callback',
   passport.authenticate('google', { 
-    failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:3000'}/login`, 
+    failureRedirect: `${process.env.CLIENT_URL || 'https://vocra-eight.vercel.app'}/login`, 
     session: true 
   }),
   (req, res) => {
     // Successful authentication
     // Check if user has a userType set
+    const clientUrl = process.env.CLIENT_URL || 'https://vocra-eight.vercel.app';
     if (req.user && req.user.userType && req.user.userType !== null) {
       // User has a role, redirect to dashboard
-      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/dashboard`);
+      res.redirect(`${clientUrl}/dashboard`);
     } else {
       // User doesn't have a role set, redirect to profile setup
-      res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/profile-setup`);
+      res.redirect(`${clientUrl}/profile-setup`);
     }
   }
 );
