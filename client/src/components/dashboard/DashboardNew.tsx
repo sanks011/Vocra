@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Label } from '../ui/label';
 import { Header } from '../layout/header';
 import { Main } from '../layout/main';
-import { AuthenticatedLayout } from '../layout/authenticated-layout';
 import { SidebarTrigger } from '../layout/sidebar';
 import { 
   PlusCircle, 
@@ -33,10 +32,7 @@ import {
   DollarSign,
   Download,
   Bell,
-  User,
-  BarChart3,
-  FileText,
-  Calendar as CalendarIcon
+  User
 } from 'lucide-react';
 
 // Mock data for demonstration
@@ -125,14 +121,15 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
     });
   };
 
-  return (    <Dialog open={open} onOpenChange={setOpen}>
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-black hover:bg-black/80 border border-gray-800 text-white">
+        <Button className="bg-blue-600 hover:bg-blue-700">
           <PlusCircle className="w-4 h-4 mr-2" />
           Create Job
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-black border-gray-900">
+      <DialogContent className="sm:max-w-[500px] bg-gray-900 border-gray-700">
         <DialogHeader>
           <DialogTitle className="text-white">Create New Job Posting</DialogTitle>
           <DialogDescription className="text-gray-400">
@@ -140,31 +137,34 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">            <Label htmlFor="title" className="text-white">Job Title</Label>
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-white">Job Title</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="bg-black/60 border-gray-800 text-white"
+              className="bg-gray-800 border-gray-700 text-white"
               required
             />
           </div>
-          <div className="space-y-2">            <Label htmlFor="company" className="text-white">Company</Label>
+          <div className="space-y-2">
+            <Label htmlFor="company" className="text-white">Company</Label>
             <Input
               id="company"
               value={formData.company}
               onChange={(e) => setFormData({...formData, company: e.target.value})}
-              className="bg-black/60 border-gray-800 text-white"
+              className="bg-gray-800 border-gray-700 text-white"
               required
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="location" className="text-white">Location</Label>
-              <Input                id="location"
+              <Input
+                id="location"
                 value={formData.location}
                 onChange={(e) => setFormData({...formData, location: e.target.value})}
-                className="bg-black/60 border-gray-800 text-white"
+                className="bg-gray-800 border-gray-700 text-white"
                 required
               />
             </div>
@@ -184,29 +184,32 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="salary" className="text-white">Salary Range</Label>            <Input
+            <Label htmlFor="salary" className="text-white">Salary Range</Label>
+            <Input
               id="salary"
               value={formData.salary}
               onChange={(e) => setFormData({...formData, salary: e.target.value})}
-              className="bg-black/60 border-gray-800 text-white"
+              className="bg-gray-800 border-gray-700 text-white"
               placeholder="e.g., $60,000 - $80,000"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-white">Job Description</Label>            <Textarea
+            <Label htmlFor="description" className="text-white">Job Description</Label>
+            <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="bg-black/60 border-gray-800 text-white"
+              className="bg-gray-800 border-gray-700 text-white"
               rows={4}
               required
             />
           </div>
-          <div className="flex justify-end space-x-2">            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="bg-transparent border-gray-800 text-gray-300 hover:bg-black/80">
+          <div className="flex justify-end space-x-2">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="border-gray-700 text-gray-300 hover:bg-gray-800">
               Cancel
             </Button>
-            <Button type="submit" className="bg-black hover:bg-black/80 border border-gray-800 text-white">
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
               Create Job
             </Button>
           </div>
@@ -219,39 +222,40 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
 // Stats cards component
 const StatsCards = ({ userType }: { userType: string }) => {
   if (userType === 'recruiter') {
-    return (      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-black/60 border-0 shadow-md">
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Total Jobs</CardTitle>
-            <Briefcase className="h-4 w-4 text-gray-400" />
+            <Briefcase className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{jobPostings.length}</div>
             <p className="text-xs text-gray-400">
-              <span className="text-gray-300">+2</span> from last month
+              <span className="text-green-500">+2</span> from last month
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-black/60 border-0 shadow-md">
+        <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Total Applicants</CardTitle>
-            <Users className="h-4 w-4 text-gray-400" />
+            <Users className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
               {jobPostings.reduce((sum, job) => sum + job.applicants, 0)}
             </div>
             <p className="text-xs text-gray-400">
-              <span className="text-gray-300">+12%</span> from last month
+              <span className="text-green-500">+12%</span> from last month
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-black/60 border-0 shadow-md">
+        <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Active Jobs</CardTitle>
-            <TrendingUp className="h-4 w-4 text-gray-400" />
+            <TrendingUp className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
@@ -263,91 +267,74 @@ const StatsCards = ({ userType }: { userType: string }) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-black/60 border-0 shadow-md">
+        <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Interviews</CardTitle>
-            <Calendar className="h-4 w-4 text-gray-400" />
+            <Calendar className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{interviews.length}</div>
             <p className="text-xs text-gray-400">
-              <span className="text-gray-300">1</span> scheduled today
+              <span className="text-blue-500">1</span> scheduled today
             </p>
           </CardContent>
         </Card>
       </div>
     );
   }
+
   // Candidate stats
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Card className="bg-black/60 border-0 shadow-md">
-        <CardHeader>
-          <CardTitle className="text-white">Practice Sessions</CardTitle>
-          <CardDescription className="text-gray-400">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold text-white">12</span>
-              <span className="text-xs text-gray-400 ml-2">
-                <TrendingUp className="inline-block w-4 h-4 mr-1" />
-                <span className="text-gray-300">+3</span> this week
-              </span>
-            </div>
-          </CardDescription>
+      <Card className="bg-gray-900 border-gray-800">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-gray-300">Practice Sessions</CardTitle>
+          <Calendar className="h-4 w-4 text-blue-500" />
         </CardHeader>
         <CardContent>
-          <Progress value={75} className="h-2 bg-gray-800 rounded-full" />
+          <div className="text-2xl font-bold text-white">12</div>
+          <p className="text-xs text-gray-400">
+            <span className="text-green-500">+3</span> this week
+          </p>
         </CardContent>
       </Card>
 
-      <Card className="bg-black/60 border-0 shadow-md">
-        <CardHeader>
-          <CardTitle className="text-white">Average Score</CardTitle>
-          <CardDescription className="text-gray-400">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold text-white">8.2</span>
-              <span className="text-xs text-gray-400 ml-2">
-                <TrendingUp className="inline-block w-4 h-4 mr-1" />
-                <span className="text-gray-300">+0.5</span> from last month
-              </span>
-            </div>
-          </CardDescription>
+      <Card className="bg-gray-900 border-gray-800">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-gray-300">Average Score</CardTitle>
+          <TrendingUp className="h-4 w-4 text-green-500" />
         </CardHeader>
         <CardContent>
-          <Progress value={82} className="h-2 bg-gray-800 rounded-full" />
+          <div className="text-2xl font-bold text-white">8.2</div>
+          <p className="text-xs text-gray-400">
+            <span className="text-green-500">+0.5</span> from last month
+          </p>
         </CardContent>
       </Card>
 
-      <Card className="bg-black/60 border-0 shadow-md">
-        <CardHeader>
-          <CardTitle className="text-white">Skills Improved</CardTitle>
-          <CardDescription className="text-gray-400">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold text-white">7</span>
-              <span className="text-xs text-gray-400 ml-2">
-                Communication, Problem Solving
-              </span>
-            </div>
-          </CardDescription>
+      <Card className="bg-gray-900 border-gray-800">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-gray-300">Skills Improved</CardTitle>
+          <Users className="h-4 w-4 text-orange-500" />
         </CardHeader>
         <CardContent>
-          <Progress value={70} className="h-2 bg-gray-800 rounded-full" />
+          <div className="text-2xl font-bold text-white">7</div>
+          <p className="text-xs text-gray-400">
+            Communication, Problem Solving
+          </p>
         </CardContent>
       </Card>
 
-      <Card className="bg-black/60 border-0 shadow-md">
-        <CardHeader>
-          <CardTitle className="text-white">Applications</CardTitle>
-          <CardDescription className="text-gray-400">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold text-white">5</span>
-              <span className="text-xs text-gray-400 ml-2">
-                <span className="text-gray-300">2</span> interviews scheduled
-              </span>
-            </div>
-          </CardDescription>
+      <Card className="bg-gray-900 border-gray-800">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium text-gray-300">Applications</CardTitle>
+          <Briefcase className="h-4 w-4 text-purple-500" />
         </CardHeader>
         <CardContent>
-          <Progress value={50} className="h-2 bg-gray-800 rounded-full" />
+          <div className="text-2xl font-bold text-white">5</div>
+          <p className="text-xs text-gray-400">
+            <span className="text-blue-500">2</span> interviews scheduled
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -369,20 +356,16 @@ const DashboardContent = () => {
   );
 
   return (
-    <>      {/* Header */}
-      <Header className="bg-black/60 border-b border-gray-900">
+    <>
+      {/* Header */}
+      <Header>
         <div className="flex items-center gap-2">
           <SidebarTrigger />
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
         </div>
         <div className="ml-auto flex items-center space-x-4">
-          {user?.userType === 'recruiter' && (
-            <Button className="bg-black/80 hover:bg-black border border-gray-800 text-white">
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Create Job
-            </Button>
-          )}
-          <Button variant="outline" size="sm" className="bg-black/80 border-gray-800 text-gray-300 hover:bg-black">
+          {user?.userType === 'recruiter' && <CreateJobDialog onJobCreated={handleJobCreated} />}
+          <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-800">
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
@@ -398,51 +381,53 @@ const DashboardContent = () => {
       {/* Main Content */}
       <Main>
         {/* Stats Cards */}
-        <StatsCards userType={user?.userType || 'candidate'} />        {/* Tabs */}
+        <StatsCards userType={user?.userType || 'candidate'} />
+
+        {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="bg-black border-b border-gray-900 rounded-none p-0 h-10">
-            <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none h-10 text-gray-300">
+          <TabsList className="bg-gray-900 border-gray-800">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gray-800 text-gray-300">
               Overview
             </TabsTrigger>
             {user?.userType === 'recruiter' && (
               <>
-                <TabsTrigger value="jobs" className="data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none h-10 text-gray-300">
+                <TabsTrigger value="jobs" className="data-[state=active]:bg-gray-800 text-gray-300">
                   Job Postings
                 </TabsTrigger>
-                <TabsTrigger value="interviews" className="data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none h-10 text-gray-300">
+                <TabsTrigger value="interviews" className="data-[state=active]:bg-gray-800 text-gray-300">
                   Interviews
                 </TabsTrigger>
               </>
             )}
-            <TabsTrigger value="analytics" className="data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none h-10 text-gray-300">
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-gray-800 text-gray-300">
               Analytics
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="bg-black/60 border-0 shadow-md">
+              <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
                   <CardTitle className="text-white">Recent Activity</CardTitle>
                   <CardDescription className="text-gray-400">
-                    Your latest activities
+                    Your latest {user?.userType === 'recruiter' ? 'hiring' : 'job search'} activities
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {user?.userType === 'recruiter' ? (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         <span className="text-gray-300">New application for Frontend Developer</span>
                         <span className="text-xs text-gray-500 ml-auto">2 hours ago</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         <span className="text-gray-300">Interview completed: UI/UX Designer</span>
                         <span className="text-xs text-gray-500 ml-auto">5 hours ago</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                         <span className="text-gray-300">Job posting published: Backend Engineer</span>
                         <span className="text-xs text-gray-500 ml-auto">1 day ago</span>
                       </div>
@@ -450,17 +435,17 @@ const DashboardContent = () => {
                   ) : (
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         <span className="text-gray-300">Applied to Frontend Developer role</span>
                         <span className="text-xs text-gray-500 ml-auto">1 hour ago</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         <span className="text-gray-300">Completed practice interview</span>
                         <span className="text-xs text-gray-500 ml-auto">3 hours ago</span>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                         <span className="text-gray-300">Profile view from TechCorp</span>
                         <span className="text-xs text-gray-500 ml-auto">6 hours ago</span>
                       </div>
@@ -469,7 +454,7 @@ const DashboardContent = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-black/60 border-0 shadow-md">
+              <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
                   <CardTitle className="text-white">Quick Actions</CardTitle>
                   <CardDescription className="text-gray-400">
@@ -479,30 +464,30 @@ const DashboardContent = () => {
                 <CardContent className="space-y-3">
                   {user?.userType === 'recruiter' ? (
                     <>
-                      <Button className="w-full justify-start bg-black hover:bg-black/80 border border-gray-800 text-white">
+                      <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
                         <PlusCircle className="w-4 h-4 mr-2" />
                         Post New Job
                       </Button>
-                      <Button variant="outline" className="w-full justify-start bg-transparent border-gray-800 text-gray-300 hover:bg-gray-900">
+                      <Button variant="outline" className="w-full justify-start border-gray-700 text-gray-300 hover:bg-gray-800">
                         <Calendar className="w-4 h-4 mr-2" />
                         Schedule Interview
                       </Button>
-                      <Button variant="outline" className="w-full justify-start bg-transparent border-gray-800 text-gray-300 hover:bg-gray-900">
+                      <Button variant="outline" className="w-full justify-start border-gray-700 text-gray-300 hover:bg-gray-800">
                         <Users className="w-4 h-4 mr-2" />
                         Review Applications
                       </Button>
                     </>
                   ) : (
                     <>
-                      <Button className="w-full justify-start bg-black hover:bg-black/80 border border-gray-800 text-white">
+                      <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
                         <Search className="w-4 h-4 mr-2" />
                         Browse Jobs
                       </Button>
-                      <Button variant="outline" className="w-full justify-start bg-transparent border-gray-800 text-gray-300 hover:bg-gray-900">
+                      <Button variant="outline" className="w-full justify-start border-gray-700 text-gray-300 hover:bg-gray-800">
                         <Calendar className="w-4 h-4 mr-2" />
                         Practice Interview
                       </Button>
-                      <Button variant="outline" className="w-full justify-start bg-transparent border-gray-800 text-gray-300 hover:bg-gray-900">
+                      <Button variant="outline" className="w-full justify-start border-gray-700 text-gray-300 hover:bg-gray-800">
                         <User className="w-4 h-4 mr-2" />
                         Update Profile
                       </Button>
@@ -514,7 +499,8 @@ const DashboardContent = () => {
           </TabsContent>
 
           {user?.userType === 'recruiter' && (
-            <>              <TabsContent value="jobs" className="space-y-4">
+            <>
+              <TabsContent value="jobs" className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -522,16 +508,16 @@ const DashboardContent = () => {
                       placeholder="Search jobs..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 bg-black/60 border-gray-800 text-white"
+                      className="pl-10 bg-gray-900 border-gray-700 text-white"
                     />
                   </div>
-                  <Button variant="outline" className="bg-black/60 border-gray-800 text-gray-300 hover:bg-black">
+                  <Button variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800">
                     <Filter className="w-4 h-4 mr-2" />
                     Filter
                   </Button>
                 </div>
 
-                <Card className="bg-black/60 border-0 shadow-md">
+                <Card className="bg-gray-900 border-gray-800">
                   <CardHeader>
                     <CardTitle className="text-white">Job Postings</CardTitle>
                     <CardDescription className="text-gray-400">
@@ -541,7 +527,7 @@ const DashboardContent = () => {
                   <CardContent>
                     <Table>
                       <TableHeader>
-                        <TableRow className="border-gray-900">
+                        <TableRow className="border-gray-800">
                           <TableHead className="text-gray-300">Job Title</TableHead>
                           <TableHead className="text-gray-300">Location</TableHead>
                           <TableHead className="text-gray-300">Type</TableHead>
@@ -552,17 +538,17 @@ const DashboardContent = () => {
                       </TableHeader>
                       <TableBody>
                         {filteredJobs.map((job) => (
-                          <TableRow key={job.id} className="border-gray-900">
+                          <TableRow key={job.id} className="border-gray-800">
                             <TableCell className="font-medium text-white">{job.title}</TableCell>
                             <TableCell className="text-gray-300">
                               <div className="flex items-center">
-                                <MapPin className="w-3 h-3 mr-1 text-gray-400" />
+                                <MapPin className="w-3 h-3 mr-1" />
                                 {job.location}
                               </div>
                             </TableCell>
                             <TableCell className="text-gray-300">{job.type}</TableCell>
                             <TableCell>
-                              <Badge variant="outline" className="bg-black border-gray-700 text-gray-300">
+                              <Badge variant={job.status === 'Active' ? 'default' : 'secondary'}>
                                 {job.status}
                               </Badge>
                             </TableCell>
@@ -575,7 +561,7 @@ const DashboardContent = () => {
                                 <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                                   <Edit className="w-4 h-4" />
                                 </Button>
-                                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400">
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
                               </div>
@@ -586,8 +572,10 @@ const DashboardContent = () => {
                     </Table>
                   </CardContent>
                 </Card>
-              </TabsContent>              <TabsContent value="interviews" className="space-y-4">
-                <Card className="bg-black/60 border-0 shadow-md">
+              </TabsContent>
+
+              <TabsContent value="interviews" className="space-y-4">
+                <Card className="bg-gray-900 border-gray-800">
                   <CardHeader>
                     <CardTitle className="text-white">Recent Interviews</CardTitle>
                     <CardDescription className="text-gray-400">
@@ -597,7 +585,7 @@ const DashboardContent = () => {
                   <CardContent>
                     <Table>
                       <TableHeader>
-                        <TableRow className="border-gray-900">
+                        <TableRow className="border-gray-800">
                           <TableHead className="text-gray-300">Candidate</TableHead>
                           <TableHead className="text-gray-300">Position</TableHead>
                           <TableHead className="text-gray-300">Date</TableHead>
@@ -608,11 +596,11 @@ const DashboardContent = () => {
                       </TableHeader>
                       <TableBody>
                         {interviews.map((interview) => (
-                          <TableRow key={interview.id} className="border-gray-900">
+                          <TableRow key={interview.id} className="border-gray-800">
                             <TableCell className="font-medium text-white">
                               <div className="flex items-center">
-                                <Avatar className="w-8 h-8 mr-2 bg-gray-900 border border-gray-800">
-                                  <AvatarFallback className="bg-black text-white">
+                                <Avatar className="w-8 h-8 mr-2">
+                                  <AvatarFallback className="bg-gray-700 text-white">
                                     {interview.candidate.split(' ').map(n => n[0]).join('')}
                                   </AvatarFallback>
                                 </Avatar>
@@ -622,12 +610,12 @@ const DashboardContent = () => {
                             <TableCell className="text-gray-300">{interview.position}</TableCell>
                             <TableCell className="text-gray-300">
                               <div className="flex items-center">
-                                <Clock className="w-3 h-3 mr-1 text-gray-400" />
+                                <Clock className="w-3 h-3 mr-1" />
                                 {interview.date}
                               </div>
                             </TableCell>
                             <TableCell>
-                              <Badge variant="outline" className="bg-black border-gray-700 text-gray-300">
+                              <Badge variant={interview.status === 'Completed' ? 'default' : 'secondary'}>
                                 {interview.status}
                               </Badge>
                             </TableCell>
@@ -635,7 +623,7 @@ const DashboardContent = () => {
                               {interview.score ? (
                                 <div className="flex items-center">
                                   <span className="mr-2">{interview.score}/10</span>
-                                  <Progress value={interview.score * 10} className="w-16 bg-gray-800" />
+                                  <Progress value={interview.score * 10} className="w-16" />
                                 </div>
                               ) : (
                                 <span className="text-gray-500">-</span>
@@ -654,9 +642,11 @@ const DashboardContent = () => {
                 </Card>
               </TabsContent>
             </>
-          )}          <TabsContent value="analytics" className="space-y-4">
+          )}
+
+          <TabsContent value="analytics" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-black/60 border-0 shadow-md">
+              <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
                   <CardTitle className="text-white">Performance Metrics</CardTitle>
                   <CardDescription className="text-gray-400">
@@ -670,7 +660,7 @@ const DashboardContent = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-black/60 border-0 shadow-md">
+              <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
                   <CardTitle className="text-white">Success Rate</CardTitle>
                   <CardDescription className="text-gray-400">
@@ -685,7 +675,7 @@ const DashboardContent = () => {
                         {user?.userType === 'recruiter' ? '24%' : '78%'}
                       </span>
                     </div>
-                    <Progress value={user?.userType === 'recruiter' ? 24 : 78} className="w-full bg-gray-800" />
+                    <Progress value={user?.userType === 'recruiter' ? 24 : 78} className="w-full" />
                     <div className="flex justify-between items-center text-sm text-gray-400">
                       <span>
                         {user?.userType === 'recruiter' ? 'Hires: 12' : 'Interviews: 156'}
@@ -711,11 +701,9 @@ const Dashboard = () => {
   
   if (loading) {
     return (
-      <AuthenticatedLayout>
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      </AuthenticatedLayout>
+      <div className="flex items-center justify-center h-screen bg-gray-950">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
     );
   }
 
@@ -733,10 +721,34 @@ const Dashboard = () => {
   }
   
   return (
-    <AuthenticatedLayout>
-      <DashboardContent />
-    </AuthenticatedLayout>
+    <>
+      <Header>
+        <div className="flex items-center gap-2">
+          <SidebarTrigger />
+          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+        </div>
+        <div className="ml-auto flex items-center space-x-4">
+          {user?.userType === 'recruiter' && (
+            <CreateJobDialog onJobCreated={() => console.log('Job created successfully')} />
+          )}
+          <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-800">
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+            <Bell className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
+            <User className="w-4 h-4" />
+          </Button>
+        </div>
+      </Header>
+
+      <Main>
+        <DashboardContent />
+      </Main>
+    </>
   );
 };
 
-export default Dashboard;
+export default DashboardContent;
