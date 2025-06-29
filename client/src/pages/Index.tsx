@@ -25,7 +25,7 @@ const Index = () => {
         }}
         gridOptions={{
           angle: 65,
-          opacity: 0.2,
+          opacity: 0.4,
           cellSize: 50,
           lightLineColor: "#4c1d95",
           darkLineColor: "#4c1d95",

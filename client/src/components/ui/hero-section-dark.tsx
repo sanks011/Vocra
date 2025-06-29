@@ -28,7 +28,7 @@ interface HeroSectionProps extends React.HTMLAttributes<HTMLDivElement> {
 const RetroGrid = ({
   angle = 65,
   cellSize = 60,
-  opacity = 0.2,
+  opacity = 0.4,
   lightLineColor = "#4c1d95",
   darkLineColor = "#4c1d95",
 }) => {

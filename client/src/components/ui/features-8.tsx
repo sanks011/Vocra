@@ -1,13 +1,33 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Shield, Users } from 'lucide-react'
+import { motion } from "motion/react"
 
 export function Features() {
-    return (
-        <section className="bg-gray-50 py-16 md:py-32 dark:bg-transparent">
+    return (        <section className="bg-black py-16 md:py-32 dark">
             <div className="mx-auto max-w-3xl lg:max-w-5xl px-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                    viewport={{ once: true }}
+                    className="flex flex-col items-center justify-center max-w-[540px] mx-auto mb-12"
+                >
+                    <div className="flex justify-center">
+                        <div className="border border-gray-700/50 py-2 px-4 rounded-full bg-gray-900/30 text-gray-300 backdrop-blur-sm">
+                            Features
+                        </div>
+                    </div>
+
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mt-6 text-white text-center">
+                        AI-Powered Tools
+                    </h2>
+                    <p className="text-center mt-5 text-lg text-gray-400 max-w-md">
+                        Advanced capabilities designed to transform your workflow and enhance productivity.
+                    </p>
+                </motion.div>
                 <div className="relative">
                     <div className="relative z-10 grid grid-cols-6 gap-3">
-                        <Card className="relative col-span-full flex overflow-hidden lg:col-span-2">
+                        <Card className="relative col-span-full flex overflow-hidden lg:col-span-2 bg-black border-neutral-800">
                             <CardContent className="relative m-auto size-fit pt-6">
                                 <div className="relative flex h-24 w-56 items-center">
                                     <svg className="text-muted absolute inset-0 size-full" viewBox="0 0 254 104" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -18,12 +38,12 @@ export function Features() {
                                     </svg>
                                     <span className="mx-auto block w-fit text-5xl font-semibold">100%</span>
                                 </div>
-                                <h2 className="mt-6 text-center text-3xl font-semibold">Customizable</h2>
+                                <h2 className="mt-6 text-center text-3xl font-semibold text-white">Customizable</h2>
+                                <p className="mt-2 text-center text-gray-300">Tailor the AI to your specific needs with fully adaptable parameters and workflows.</p>
                             </CardContent>
-                        </Card>
-                        <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
+                        </Card>                        <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2 bg-black border-neutral-800">
                             <CardContent className="pt-6">
-                                <div className="relative mx-auto flex aspect-square size-32 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
+                                <div className="relative mx-auto flex aspect-square size-32 rounded-full border border-white/10 before:absolute before:-inset-2 before:rounded-full before:border before:border-white/5">
                                     <svg className="m-auto h-fit w-24" viewBox="0 0 212 143" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path
                                             className="text-zinc-400 dark:text-zinc-600"
@@ -47,14 +67,12 @@ export function Features() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </div>
-                                <div className="relative z-10 mt-6 space-y-2 text-center">
-                                    <h2 className="group-hover:text-secondary-950 text-lg font-medium transition dark:text-white">Secure by default</h2>
-                                    <p className="text-foreground">Provident fugit and vero voluptate. magnam magni doloribus dolores voluptates a sapiente nisi.</p>
+                                </div>                                <div className="relative z-10 mt-6 space-y-2 text-center">
+                                    <h2 className="text-lg font-medium text-white">Neural Processing</h2>
+                                    <p className="text-gray-300">Our advanced neural networks deliver sophisticated analysis and understanding of complex data patterns.</p>
                                 </div>
                             </CardContent>
-                        </Card>
-                        <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
+                        </Card>                        <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2 bg-black border-neutral-800">
                             <CardContent className="pt-6">
                                 <div className="pt-6 lg:px-6">
                                     <svg className="dark:text-muted-foreground w-full" viewBox="0 0 386 123" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -94,22 +112,19 @@ export function Features() {
                                             </clipPath>
                                         </defs>
                                     </svg>
-                                </div>
-                                <div className="relative z-10 mt-14 space-y-2 text-center">
-                                    <h2 className="text-lg font-medium transition">Faster than light</h2>
-                                    <p className="text-foreground">Provident fugit vero voluptate. magnam magni doloribus dolores voluptates inventore nisi.</p>
+                                </div>                                <div className="relative z-10 mt-14 space-y-2 text-center">
+                                    <h2 className="text-lg font-medium text-white">Faster than light</h2>
+                                    <p className="text-gray-300">GPU-accelerated processing delivers responses in milliseconds, providing real-time interaction and feedback.</p>
                                 </div>
                             </CardContent>
-                        </Card>
-                        <Card className="relative col-span-full overflow-hidden lg:col-span-3">
+                        </Card>                        <Card className="relative col-span-full overflow-hidden lg:col-span-3 bg-black border-neutral-800">
                             <CardContent className="grid pt-6 sm:grid-cols-2">
                                 <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
                                     <div className="relative flex aspect-square size-12 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
                                         <Shield className="m-auto size-5" strokeWidth={1} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h2 className="group-hover:text-secondary-950 text-lg font-medium text-zinc-800 transition dark:text-white">Faster than light</h2>
-                                        <p className="text-foreground">Provident fugit vero voluptate. Voluptates a sapiente inventore nisi.</p>
+                                    </div>                                    <div className="space-y-2">
+                                        <h2 className="text-lg font-medium text-white">Advanced Analytics</h2>
+                                        <p className="text-gray-300">Gain actionable insights with our comprehensive analytics dashboard featuring predictive modeling and usage metrics.</p>
                                     </div>
                                 </div>
                                 <div className="rounded-tl-(--radius) relative -mb-6 -mr-6 mt-6 h-fit border-l border-t p-6 py-6 sm:ml-6">
@@ -140,16 +155,14 @@ export function Features() {
                                     </svg>
                                 </div>
                             </CardContent>
-                        </Card>
-                        <Card className="relative col-span-full overflow-hidden lg:col-span-3">
+                        </Card>                        <Card className="relative col-span-full overflow-hidden lg:col-span-3 bg-black border-neutral-800">
                             <CardContent className="grid h-full pt-6 sm:grid-cols-2">
                                 <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
                                     <div className="relative flex aspect-square size-12 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
                                         <Users className="m-auto size-6" strokeWidth={1} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h2 className="text-lg font-medium transition">Keep your loved ones safe</h2>
-                                        <p className="text-foreground">Voluptate. magnam magni doloribus dolores voluptates a sapiente inventore nisi.</p>
+                                    </div>                                    <div className="space-y-2">
+                                        <h2 className="text-lg font-medium text-white">Expert Community</h2>
+                                        <p className="text-gray-300">Connect with our thriving community of AI researchers and practitioners with dedicated 24/7 technical support.</p>
                                     </div>
                                 </div>
                                 <div className="before:bg-(--color-border) relative mt-6 before:absolute before:inset-0 before:mx-auto before:w-px sm:-my-6 sm:-mr-6">
@@ -177,8 +190,11 @@ export function Features() {
                             </CardContent>
                         </Card>
                     </div>
-                </div>
-            </div>
+                </div>            </div>
+            
+            {/* Background gradient effects */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-transparent pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
         </section>
     )
 }
