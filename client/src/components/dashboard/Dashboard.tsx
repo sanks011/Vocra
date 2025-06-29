@@ -56,7 +56,7 @@ import {
 } from 'recharts';
 
 // API Services
-const API_URL = 'http://localhost:5000/api';
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api';
 
 // Interface definitions for type safety
 interface Job {
@@ -97,7 +97,7 @@ interface ChartData {
 // API service functions
 const fetchJobs = async (): Promise<Job[]> => {
   try {
-    const response = await fetch(`${API_URL}/jobs/recruiter/jobs`, {
+    const response = await fetch(`${API_BASE}/jobs/recruiter/jobs`, {
       credentials: 'include'
     });
     if (!response.ok) {
@@ -113,7 +113,7 @@ const fetchJobs = async (): Promise<Job[]> => {
 
 const fetchJobStats = async (): Promise<JobStats> => {
   try {
-    const response = await fetch(`${API_URL}/jobs/recruiter/stats`, {
+    const response = await fetch(`${API_BASE}/jobs/recruiter/stats`, {
       credentials: 'include'
     });
     if (!response.ok) {
@@ -129,7 +129,7 @@ const fetchJobStats = async (): Promise<JobStats> => {
 
 const fetchAnalytics = async (): Promise<ChartData> => {
   try {
-    const response = await fetch(`${API_URL}/jobs/recruiter/analytics`, {
+    const response = await fetch(`${API_BASE}/jobs/recruiter/analytics`, {
       credentials: 'include'
     });
     if (!response.ok) {
@@ -153,7 +153,7 @@ const fetchAnalytics = async (): Promise<ChartData> => {
 
 const createJob = async (jobData: any): Promise<Job | null> => {
   try {
-    const response = await fetch(`${API_URL}/jobs`, {
+    const response = await fetch(`${API_BASE}/jobs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -176,7 +176,7 @@ const createJob = async (jobData: any): Promise<Job | null> => {
 
 const updateJob = async (id: string, jobData: any): Promise<Job | null> => {
   try {
-    const response = await fetch(`${API_URL}/jobs/${id}`, {
+    const response = await fetch(`${API_BASE}/jobs/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -199,7 +199,7 @@ const updateJob = async (id: string, jobData: any): Promise<Job | null> => {
 
 const deleteJob = async (id: string): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_URL}/jobs/${id}`, {
+    const response = await fetch(`${API_BASE}/jobs/${id}`, {
       method: 'DELETE',
       credentials: 'include'
     });

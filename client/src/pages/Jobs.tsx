@@ -34,7 +34,7 @@ const Jobs = () => {
       if (locationFilter) params.append('location', locationFilter);
       if (typeFilter !== 'all') params.append('type', typeFilter);
       
-      const response = await fetch(`http://localhost:5000/api/jobs?${params.toString()}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
         setJobs(data);
@@ -55,7 +55,7 @@ const Jobs = () => {
     const statuses = {};
     for (const job of jobsList) {
       try {
-        const response = await fetch(`http://localhost:5000/api/jobs/${job._id}/application-status`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/${job._id}/application-status`, {
           credentials: 'include'
         });
         if (response.ok) {
@@ -81,7 +81,7 @@ const Jobs = () => {
   const handleApplicationSubmit = async (formData) => {
     setSubmitting(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/jobs/${applicationModal.jobId}/apply`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/${applicationModal.jobId}/apply`, {
         method: 'POST',
         credentials: 'include',
         body: formData

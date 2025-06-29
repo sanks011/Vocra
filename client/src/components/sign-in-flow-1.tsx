@@ -540,7 +540,7 @@ export const SignInPage = ({ className }: SignInPageProps) => {
                     
                     <div className="space-y-4">
                       <button 
-                        onClick={() => window.location.href = 'http://localhost:5000/api/auth/google'}
+                        onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/google`}
                         className="backdrop-blur-[2px] w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full py-3 px-4 transition-colors"
                       >
                         <span className="text-lg">G</span>

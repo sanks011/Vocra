@@ -25,7 +25,7 @@ const InterviewDashboard = () => {
         ? '/api/interviews/recruiter/interviews'
         : '/api/interviews/candidate/interviews';
         
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${endpoint}`, {
         credentials: 'include'
       });
       
@@ -49,7 +49,7 @@ const InterviewDashboard = () => {
     
     setStartingInterview(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/interviews/${selectedInterviewId}/start`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/interviews/${selectedInterviewId}/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

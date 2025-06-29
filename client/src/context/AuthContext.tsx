@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const checkAuth = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/auth/current', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/current`, {
         method: 'GET',
         credentials: 'include', // Important for cookies
       });      if (response.ok) {
@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Logout function
   const logout = async () => {
     try {
-      await fetch('http://localhost:5000/api/auth/logout', {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Update user type (recruiter/candidate)
   const updateUserType = async (userType: 'recruiter' | 'candidate') => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/user-type', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/user-type`, {
         method: 'PUT',
         credentials: 'include',
         headers: {

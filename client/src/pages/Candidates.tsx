@@ -26,7 +26,7 @@ const Candidates = () => {
 
   const fetchApplications = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/jobs/recruiter/applications', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/recruiter/applications`, {
         credentials: 'include'
       });
       if (response.ok) {
@@ -42,7 +42,7 @@ const Candidates = () => {
 
   const fetchJobs = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/jobs/recruiter/jobs', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/recruiter/jobs`, {
         credentials: 'include'
       });
       if (response.ok) {
@@ -56,7 +56,7 @@ const Candidates = () => {
 
   const updateApplicationStatus = async (jobId, applicantId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/jobs/${jobId}/applicants/${applicantId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/${jobId}/applicants/${applicantId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -256,7 +256,7 @@ const Candidates = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => window.open(`http://localhost:5000${application.resumeUrl}`, '_blank')}
+                                onClick={() => window.open(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${application.resumeUrl}`, '_blank')}
                               >
                                 <Download className="h-4 w-4 mr-2" />
                                 {application.resumeFileName || 'Download Resume'}

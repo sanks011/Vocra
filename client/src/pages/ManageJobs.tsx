@@ -20,7 +20,7 @@ const ManageJobs = () => {
 
   const fetchJobs = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/jobs/recruiter/jobs', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/recruiter/jobs`, {
         credentials: 'include'
       });
       if (response.ok) {
@@ -37,7 +37,7 @@ const ManageJobs = () => {
   const deleteJob = async (jobId) => {
     if (window.confirm('Are you sure you want to delete this job?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/${jobId}`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -53,7 +53,7 @@ const ManageJobs = () => {
   const toggleJobStatus = async (jobId, currentStatus) => {
     const newStatus = currentStatus === 'Active' ? 'Closed' : 'Active';
     try {
-      const response = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/${jobId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

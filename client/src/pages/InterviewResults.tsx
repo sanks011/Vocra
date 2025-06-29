@@ -30,7 +30,7 @@ const InterviewResults = () => {
 
   const fetchInterviewResults = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/interviews/${interviewId}/analytics`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/interviews/${interviewId}/analytics`, {
         credentials: 'include'
       });
       
