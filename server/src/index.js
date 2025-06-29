@@ -30,8 +30,7 @@ app.use(cors({
     'https://omnidim.io',
     'https://backend.omnidim.io',
     'https://api.omnidim.io',
-    'https://vocra-eight.vercel.app',
-    'https://vocra-eight.vercel.app/'
+    'https://vocra-eight.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -51,11 +50,11 @@ app.use(session({
     ttl: 7 * 24 * 60 * 60 // 7 days in seconds
   }),
   cookie: {
-    secure: true, // Always true for cross-site in production
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true, // Helps prevent XSS attacks
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-    sameSite: 'none', // Always 'none' for cross-site
-    domain: process.env.COOKIE_DOMAIN || '.onrender.com' // Set to your backend domain for cross-site
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
   }
 }));
 
