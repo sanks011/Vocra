@@ -51,10 +51,11 @@ app.use(session({
     ttl: 7 * 24 * 60 * 60 // 7 days in seconds
   }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: true, // Always true for cross-site in production
     httpOnly: true, // Helps prevent XSS attacks
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    sameSite: 'none', // Always 'none' for cross-site
+    domain: process.env.COOKIE_DOMAIN || '.onrender.com' // Set to your backend domain for cross-site
   }
 }));
 
