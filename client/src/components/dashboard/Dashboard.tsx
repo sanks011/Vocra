@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -54,6 +54,166 @@ import {
   Legend,
   ResponsiveContainer 
 } from 'recharts';
+
+// API Services
+const API_URL = 'http://localhost:5000/api';
+
+// Interface definitions for type safety
+interface Job {
+  _id: string;
+  title: string;
+  company: string;
+  location: string;
+  type: string;
+  salary: string;
+  status: string;
+  applicantsCount: number;
+  postedDate: string;
+  description: string;
+}
+
+interface JobStats {
+  totalJobs: number;
+  activeJobs: number;
+  closedJobs: number;
+  totalApplicants: number;
+}
+
+interface Interview {
+  id: string;
+  candidate: string;
+  position: string;
+  date: string;
+  status: string;
+  score: number | null;
+}
+
+interface ChartData {
+  monthlyData: Array<{name: string, applications: number, interviews: number}>;
+  categoryData: Array<{name: string, count: number}>;
+  statusData: Array<{name: string, value: number}>;
+}
+
+// API service functions
+const fetchJobs = async (): Promise<Job[]> => {
+  try {
+    const response = await fetch(`${API_URL}/jobs/recruiter/jobs`, {
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch jobs');
+    }
+    const data = await response.json();
+    return Array.isArray(data) ? data : data.jobs || [];
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    return [];
+  }
+};
+
+const fetchJobStats = async (): Promise<JobStats> => {
+  try {
+    const response = await fetch(`${API_URL}/jobs/recruiter/stats`, {
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch job stats');
+    }
+    const data = await response.json();
+    return data || { totalJobs: 0, activeJobs: 0, closedJobs: 0, totalApplicants: 0 };
+  } catch (error) {
+    console.error('Error fetching job stats:', error);
+    return { totalJobs: 0, activeJobs: 0, closedJobs: 0, totalApplicants: 0 };
+  }
+};
+
+const fetchAnalytics = async (): Promise<ChartData> => {
+  try {
+    const response = await fetch(`${API_URL}/jobs/recruiter/analytics`, {
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch analytics');
+    }
+    const data = await response.json();
+    return data || {
+      monthlyData: [],
+      categoryData: [],
+      statusData: []
+    };
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    return {
+      monthlyData: [],
+      categoryData: [],
+      statusData: []
+    };
+  }
+};
+
+const createJob = async (jobData: any): Promise<Job | null> => {
+  try {
+    const response = await fetch(`${API_URL}/jobs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(jobData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to create job');
+    }
+    
+    const data = await response.json();
+    return data.job || null;
+  } catch (error) {
+    console.error('Error creating job:', error);
+    return null;
+  }
+};
+
+const updateJob = async (id: string, jobData: any): Promise<Job | null> => {
+  try {
+    const response = await fetch(`${API_URL}/jobs/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(jobData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update job');
+    }
+    
+    const data = await response.json();
+    return data.job || null;
+  } catch (error) {
+    console.error('Error updating job:', error);
+    return null;
+  }
+};
+
+const deleteJob = async (id: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_URL}/jobs/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete job');
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting job:', error);
+    return false;
+  }
+};
 
 // Mock data for demonstration
 const jobPostings = [
@@ -122,10 +282,10 @@ const pieChartData = [
 const COLORS = ['#626F94', '#8394E0', '#A2B3F3'];
 
 // Chart Components
-const ApplicationsChart = () => (
+const ApplicationsChart = ({ data = lineChartData }) => (
   <div className="h-[250px] w-full">
     <ResponsiveContainer width="100%" height="100%">
-      <RechartsLineChart data={lineChartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+      <RechartsLineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#333" />
         <XAxis dataKey="name" stroke="#888" />
         <YAxis stroke="#888" />
@@ -156,9 +316,9 @@ const ApplicationsChart = () => (
   </div>
 );
 
-const JobCategoryChart = () => (
+const JobCategoryChart = ({ data = barChartData }) => (
   <ResponsiveContainer width="100%" height={250}>
-    <BarChart data={barChartData}>
+    <BarChart data={data}>
       <CartesianGrid strokeDasharray="3 3" stroke="#333" />
       <XAxis dataKey="name" stroke="#888" />
       <YAxis stroke="#888" />
@@ -167,7 +327,7 @@ const JobCategoryChart = () => (
         labelStyle={{ color: 'white' }}
       />
       <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-        {barChartData.map((entry, index) => (
+        {data.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={['#626F94', '#8394E0', '#A2B3F3'][index % 3]} />
         ))}
       </Bar>
@@ -175,11 +335,11 @@ const JobCategoryChart = () => (
   </ResponsiveContainer>
 );
 
-const JobStatusChart = () => (
+const JobStatusChart = ({ data = pieChartData }) => (
   <ResponsiveContainer width="100%" height={250}>
     <RechartsPieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
       <Pie
-        data={pieChartData}
+        data={data}
         cx="50%"
         cy="50%"
         innerRadius={60}
@@ -190,7 +350,7 @@ const JobStatusChart = () => (
         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
         labelLine={false}
       >
-        {pieChartData.map((entry, index) => (
+        {data.map((entry, index) => (
           <Cell key={`cell-${index}`} fill={['#626F94', '#8394E0', '#A2B3F3'][index % 3]} />
         ))}
       </Pie>
@@ -225,6 +385,8 @@ const interviews = [
 // Job Creation Dialog Component
 const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     company: '',
@@ -234,19 +396,33 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
     description: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Creating job:', formData);
-    onJobCreated();
-    setOpen(false);
-    setFormData({
-      title: '',
-      company: '',
-      location: '',
-      type: 'Full-time',
-      salary: '',
-      description: ''
-    });
+    setIsSubmitting(true);
+    setError(null);
+    
+    try {
+      const result = await createJob(formData);
+      if (result) {
+        onJobCreated();
+        setOpen(false);
+        setFormData({
+          title: '',
+          company: '',
+          location: '',
+          type: 'Full-time',
+          salary: '',
+          description: ''
+        });
+      } else {
+        setError('Failed to create job. Please try again.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (    <Dialog open={open} onOpenChange={setOpen}>
@@ -255,14 +431,18 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
           <PlusCircle className="w-4 h-4 mr-2" />
           Create Job
         </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-black border-gray-900">
+      </DialogTrigger>      <DialogContent className="sm:max-w-[500px] bg-black border-gray-900">
         <DialogHeader>
           <DialogTitle className="text-white">Create New Job Posting</DialogTitle>
           <DialogDescription className="text-gray-400">
             Fill in the details to create a new job posting.
           </DialogDescription>
         </DialogHeader>
+        {error && (
+          <div className="bg-red-900/40 border border-red-800 text-red-300 px-4 py-2 rounded-md text-sm mt-2">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">            <Label htmlFor="title" className="text-white">Job Title</Label>
             <Input
@@ -327,11 +507,17 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
               required
             />
           </div>
-          <div className="flex justify-end space-x-2">            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="bg-transparent border-gray-800 text-gray-300 hover:bg-black/80">
+          <div className="flex justify-end space-x-2">            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="bg-transparent border-gray-800 text-gray-300 hover:bg-black/80" disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-black hover:bg-black/80 border border-gray-800 text-white">
-              Create Job
+            <Button type="submit" className="bg-black hover:bg-black/80 border border-gray-800 text-white" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <span className="animate-spin mr-2">⏳</span> Creating...
+                </>
+              ) : (
+                'Create Job'
+              )}
             </Button>
           </div>
         </form>
@@ -341,7 +527,15 @@ const CreateJobDialog = ({ onJobCreated }: { onJobCreated: () => void }) => {
 };
 
 // Stats cards component
-const StatsCards = ({ userType }: { userType: string }) => {
+const StatsCards = ({ 
+  userType, 
+  jobStats, 
+  interviewsCount 
+}: { 
+  userType: string;
+  jobStats?: JobStats;
+  interviewsCount?: number;
+}) => {
   if (userType === 'recruiter') {
     return (      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="bg-black/60 border-0 shadow-md">
@@ -350,9 +544,9 @@ const StatsCards = ({ userType }: { userType: string }) => {
             <Briefcase className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{jobPostings.length}</div>
+            <div className="text-2xl font-bold text-white">{jobStats?.totalJobs || 0}</div>
             <p className="text-xs text-gray-400">
-              <span className="text-gray-300">+2</span> from last month
+              <span className="text-gray-300">All time</span>
             </p>
           </CardContent>
         </Card>
@@ -364,10 +558,10 @@ const StatsCards = ({ userType }: { userType: string }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {jobPostings.reduce((sum, job) => sum + job.applicants, 0)}
+              {jobStats?.totalApplicants || 0}
             </div>
             <p className="text-xs text-gray-400">
-              <span className="text-gray-300">+12%</span> from last month
+              <span className="text-gray-300">Across all jobs</span>
             </p>
           </CardContent>
         </Card>
@@ -379,7 +573,7 @@ const StatsCards = ({ userType }: { userType: string }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {jobPostings.filter(job => job.status === 'Active').length}
+              {jobStats?.activeJobs || 0}
             </div>
             <p className="text-xs text-gray-400">
               Currently accepting applications
@@ -393,9 +587,9 @@ const StatsCards = ({ userType }: { userType: string }) => {
             <Calendar className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{interviews.length}</div>
+            <div className="text-2xl font-bold text-white">{interviewsCount || 0}</div>
             <p className="text-xs text-gray-400">
-              <span className="text-gray-300">1</span> scheduled today
+              <span className="text-gray-300">Scheduled interviews</span>
             </p>
           </CardContent>
         </Card>
@@ -482,12 +676,122 @@ const StatsCards = ({ userType }: { userType: string }) => {
 const DashboardContent = () => {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobStats, setJobStats] = useState<JobStats>({ totalJobs: 0, activeJobs: 0, closedJobs: 0, totalApplicants: 0 });
+  const [analyticsData, setAnalyticsData] = useState<ChartData>({
+    monthlyData: [],
+    categoryData: [],
+    statusData: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [interviews, setInterviews] = useState<Interview[]>([]);
 
-  const handleJobCreated = () => {
-    console.log('Job created successfully');
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const jobData = await fetchJobs();
+        setJobs(jobData);
+
+        const statsData = await fetchJobStats();
+        setJobStats(statsData);        const analyticsResponse = await fetchAnalytics();
+        setAnalyticsData(analyticsResponse);
+        
+        // Set mock interviews data for now (would be from API in production)
+        setInterviews([
+          {
+            id: '1',
+            candidate: "John Doe",
+            position: "Senior Frontend Developer",
+            date: "2024-01-20",
+            status: "Scheduled",
+            score: null
+          },
+          {
+            id: '2',
+            candidate: "Jane Smith",
+            position: "UI/UX Designer",
+            date: "2024-01-18",
+            status: "Completed",
+            score: 8.5
+          }
+        ]);
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user?.userType === 'recruiter') {
+      fetchData();
+    }
+  }, [user?.userType]);
+
+  const handleJobCreated = async () => {
+    // Refresh job data after creating a new job
+    try {
+      setLoading(true);
+      const jobData = await fetchJobs();
+      setJobs(jobData);
+      
+      const statsData = await fetchJobStats();
+      setJobStats(statsData);
+      
+      const analyticsResponse = await fetchAnalytics();
+      setAnalyticsData(analyticsResponse);
+    } catch (err) {
+      console.error('Error refreshing job data:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filteredJobs = jobPostings.filter(job =>
+  const handleDeleteJob = async (jobId: string) => {
+    try {
+      const success = await deleteJob(jobId);
+      if (success) {
+        // Remove job from local state
+        setJobs(prevJobs => prevJobs.filter(job => job._id !== jobId));
+        
+        // Refresh job stats
+        const statsData = await fetchJobStats();
+        setJobStats(statsData);
+        
+        // Refresh analytics
+        const analyticsResponse = await fetchAnalytics();
+        setAnalyticsData(analyticsResponse);
+      }
+    } catch (err) {
+      console.error('Error deleting job:', err);
+    }
+  };
+
+  const handleUpdateJobStatus = async (jobId: string, status: 'Active' | 'Closed') => {
+    try {
+      const updatedJob = await updateJob(jobId, { status });
+      if (updatedJob) {
+        // Update job in local state
+        setJobs(prevJobs => 
+          prevJobs.map(job => 
+            job._id === jobId ? { ...job, status: updatedJob.status } : job
+          )
+        );
+        
+        // Refresh job stats
+        const statsData = await fetchJobStats();
+        setJobStats(statsData);
+      }
+    } catch (err) {
+      console.error('Error updating job status:', err);
+    }
+  };
+
+  const filteredJobs = jobs.filter(job =>
     job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     job.company.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -499,12 +803,8 @@ const DashboardContent = () => {
           <SidebarTrigger />
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
         </div>
-        <div className="ml-auto flex items-center space-x-4">
-          {user?.userType === 'recruiter' && (
-            <Button className="bg-black/80 hover:bg-black border border-gray-800 text-white">
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Create Job
-            </Button>
+        <div className="ml-auto flex items-center space-x-4">          {user?.userType === 'recruiter' && (
+            <CreateJobDialog onJobCreated={handleJobCreated} />
           )}
           <Button variant="outline" size="sm" className="bg-black/80 border-gray-800 text-gray-300 hover:bg-black">
             <Download className="w-4 h-4 mr-2" />
@@ -519,10 +819,25 @@ const DashboardContent = () => {
         </div>
       </Header>
 
-      {/* Main Content */}
-      <Main>
-        {/* Stats Cards */}
-        <StatsCards userType={user?.userType || 'candidate'} />        {/* Tabs */}
+      {/* Main Content */}      <Main>
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+          </div>
+        ) : error ? (
+          <div className="bg-red-900/40 border border-red-800 text-red-300 px-4 py-3 rounded-md mb-6">
+            {error}
+          </div>
+        ) : (
+          <>
+            {/* Stats Cards */}
+            <StatsCards 
+              userType={user?.userType || 'candidate'} 
+              jobStats={jobStats}
+              interviewsCount={interviews.length}
+            />
+          </>
+        )}{/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="bg-black border-b border-gray-900 rounded-none p-0 h-10">
             <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none h-10 text-gray-300">
@@ -634,8 +949,7 @@ const DashboardContent = () => {
               </Card>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="bg-black/60 border-0 shadow-md">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">              <Card className="bg-black/60 border-0 shadow-md">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-white">Applications</CardTitle>
@@ -646,7 +960,7 @@ const DashboardContent = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ApplicationsChart />
+                  <ApplicationsChart data={analyticsData.monthlyData} />
                 </CardContent>
               </Card>
 
@@ -661,7 +975,7 @@ const DashboardContent = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <JobCategoryChart />
+                  <JobCategoryChart data={analyticsData.categoryData} />
                 </CardContent>
               </Card>
 
@@ -676,7 +990,7 @@ const DashboardContent = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <JobStatusChart />
+                  <JobStatusChart data={analyticsData.statusData} />
                 </CardContent>
               </Card>
             </div>
@@ -720,8 +1034,7 @@ const DashboardContent = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredJobs.map((job) => (
-                          <TableRow key={job.id} className="border-gray-900">
+                        {filteredJobs.map((job) => (                          <TableRow key={job._id} className="border-gray-900">
                             <TableCell className="font-medium text-white">{job.title}</TableCell>
                             <TableCell className="text-gray-300">
                               <div className="flex items-center">
@@ -735,16 +1048,26 @@ const DashboardContent = () => {
                                 {job.status}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-gray-300">{job.applicants}</TableCell>
+                            <TableCell className="text-gray-300">{job.applicantsCount}</TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-2">
                                 <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
                                   <Eye className="w-4 h-4" />
                                 </Button>
-                                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="text-gray-400 hover:text-white"
+                                  onClick={() => handleUpdateJobStatus(job._id, job.status === 'Active' ? 'Closed' : 'Active')}
+                                >
                                   <Edit className="w-4 h-4" />
                                 </Button>
-                                <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="text-gray-400 hover:text-white"
+                                  onClick={() => handleDeleteJob(job._id)}
+                                >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
                               </div>
@@ -901,9 +1224,8 @@ const DashboardContent = () => {
                   <CardDescription className="text-gray-400">
                     Monthly trend of applications and interviews
                   </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ApplicationsChart />
+                </CardHeader>                <CardContent>
+                  <ApplicationsChart data={analyticsData.monthlyData} />
                 </CardContent>
               </Card>
 
@@ -915,7 +1237,7 @@ const DashboardContent = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <JobCategoryChart />
+                  <JobCategoryChart data={analyticsData.categoryData} />
                 </CardContent>
               </Card>
 
@@ -927,7 +1249,7 @@ const DashboardContent = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <JobStatusChart />
+                  <JobStatusChart data={analyticsData.statusData} />
                 </CardContent>
               </Card>
             </div>
