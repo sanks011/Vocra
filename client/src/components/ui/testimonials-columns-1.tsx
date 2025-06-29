@@ -75,26 +75,31 @@ export const TestimonialsColumn = (props: {
           repeat: Infinity,
           ease: "linear",
           repeatType: "loop",
-        }}
-        className="flex flex-col gap-6 pb-6 bg-background"
+        }}        className="flex flex-col gap-6 pb-6"
       >
         {[
           ...new Array(2).fill(0).map((_, index) => (
             <React.Fragment key={index}>
               {props.testimonials.map(({ text, image, name, role }, i) => (
-                <div className="p-10 rounded-3xl border shadow-lg shadow-primary/10 max-w-xs w-full bg-gray-900/50 border-gray-800" key={i}>
-                  <div className="text-gray-300">{text}</div>
-                  <div className="flex items-center gap-2 mt-5">
+                <div className="p-6 rounded-2xl border border-gray-800/50 shadow-2xl shadow-black/20 max-w-xs w-full bg-gray-900/80 backdrop-blur-sm hover:bg-gray-900/90 transition-all duration-300 group" key={i}>
+                  <div className="text-gray-300 text-sm leading-relaxed mb-4 group-hover:text-gray-200 transition-colors">
+                    "{text}"
+                  </div>
+                  <div className="flex items-center gap-3">
                     <img
                       width={40}
                       height={40}
                       src={image}
                       alt={name}
-                      className="h-10 w-10 rounded-full"
+                      className="h-10 w-10 rounded-full ring-2 ring-gray-700/50"
                     />
                     <div className="flex flex-col">
-                      <div className="font-medium tracking-tight leading-5 text-white">{name}</div>
-                      <div className="leading-5 opacity-60 tracking-tight text-gray-400">{role}</div>
+                      <div className="font-semibold tracking-tight leading-5 text-white group-hover:text-blue-200 transition-colors">
+                        {name}
+                      </div>
+                      <div className="leading-5 text-gray-400 text-sm tracking-tight">
+                        {role}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -113,8 +118,8 @@ const thirdColumn = testimonials.slice(6, 9);
 
 const Testimonials = () => {
   return (
-    <section className="bg-black my-20 relative">
-      <div className="container z-10 mx-auto">
+    <section className="bg-black py-20 relative overflow-hidden">
+      <div className="container z-10 mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -123,23 +128,27 @@ const Testimonials = () => {
           className="flex flex-col items-center justify-center max-w-[540px] mx-auto"
         >
           <div className="flex justify-center">
-            <div className="border border-gray-700 py-1 px-4 rounded-lg bg-gray-900/50 text-gray-300">Testimonials</div>
+            <div className="border border-gray-700/50 py-2 px-4 rounded-full bg-gray-900/30 text-gray-300 backdrop-blur-sm">
+              Testimonials
+            </div>
           </div>
 
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tighter mt-5 text-white">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mt-6 text-white text-center">
             What our users say
           </h2>
-          <p className="text-center mt-5 opacity-75 text-gray-300">
+          <p className="text-center mt-5 text-lg text-gray-400 max-w-md">
             See what our customers have to say about our AI-powered interview platform.
           </p>
-        </motion.div>
-
-        <div className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[740px] overflow-hidden">
+        </motion.div>        <div className="flex justify-center gap-6 mt-12 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[740px] overflow-hidden">
           <TestimonialsColumn testimonials={firstColumn} duration={15} />
           <TestimonialsColumn testimonials={secondColumn} className="hidden md:block" duration={19} />
           <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:block" duration={17} />
         </div>
       </div>
+      
+      {/* Background gradient effects */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-transparent pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
     </section>
   );
 };
