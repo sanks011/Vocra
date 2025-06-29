@@ -11,6 +11,7 @@ dotenv.config();
 
 // Import routes (will create these files later)
 const authRoutes = require('./routes/auth.routes');
+const jobRoutes = require('./routes/jobs.routes');
 
 // Create Express app
 const app = express();
@@ -50,6 +51,7 @@ mongoose
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/jobs', jobRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {

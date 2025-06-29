@@ -9,6 +9,7 @@ import AuthProvider from "./context/AuthContext";
 import LoginComponent from "./components/auth/LoginComponent";
 import ProfileSetup from "./components/auth/ProfileSetup";
 import Dashboard from "./components/dashboard/Dashboard";
+import JobListings from "./components/jobs/JobListings";
 import AuthNavbar from "./components/auth/AuthNavbar";
 import { useAuth } from "./context/AuthContext";
 
@@ -39,7 +40,12 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        <BrowserRouter 
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
           <AuthNavbar />
           <Routes>
             <Route path="/" element={<Index />} />
@@ -48,12 +54,12 @@ const App = () => (
               <ProtectedRoute>
                 <div className="pt-16"><ProfileSetup /></div>
               </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
+            } />            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <div className="pt-16"><Dashboard /></div>
               </ProtectedRoute>
             } />
+            <Route path="/jobs" element={<div className="pt-16"><JobListings /></div>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<div className="pt-16"><NotFound /></div>} />
           </Routes>

@@ -64,6 +64,12 @@ const AuthNavbar = () => {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
+                  <BreadcrumbLink href="/jobs" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md hover:bg-purple-500/20 hover:text-purple-200 transition-colors text-white">
+                    Jobs
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="text-gray-500" />
+                <BreadcrumbItem>
                   <BreadcrumbLink href="/features" className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md hover:bg-purple-500/20 hover:text-purple-200 transition-colors text-white">
                     Features
                   </BreadcrumbLink>
