@@ -15,14 +15,14 @@ const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [applicationStatuses, setApplicationStatuses] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const [applicationModal, setApplicationModal] = useState({ 
     isOpen: false, 
     jobId: '', 
-    jobTitle: '', 
-    company: '' 
+    jobTitle: '',
+    company: ''
   });
-  const [applicationStatuses, setApplicationStatuses] = useState({});
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchJobs();

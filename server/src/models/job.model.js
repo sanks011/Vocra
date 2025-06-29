@@ -93,7 +93,7 @@ const jobSchema = new mongoose.Schema({
 
 // Adding a virtual property to get applicants count
 jobSchema.virtual('applicantsCount').get(function() {
-  return this.applicants.length;
+  return this.applicants ? this.applicants.length : 0;
 });
 
 // Set toJSON option to include virtuals

@@ -13,6 +13,7 @@ dotenv.config();
 // Import routes (will create these files later)
 const authRoutes = require('./routes/auth.routes');
 const jobRoutes = require('./routes/jobs.routes');
+const interviewRoutes = require('./routes/interview.routes');
 
 // Create Express app
 const app = express();
@@ -54,6 +55,9 @@ app.use('/uploads', express.static('src/uploads'));
 // Configure Passport
 require('./config/passport')(passport);
 
+// Initialize interview scheduler service
+require('./services/interview-scheduler.service');
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -63,6 +67,7 @@ mongoose
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
+app.use('/api/interviews', interviewRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {

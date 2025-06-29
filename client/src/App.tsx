@@ -23,6 +23,8 @@ import Candidates from "./pages/Candidates";
 import Jobs from "./pages/Jobs";
 import Applications from "./pages/Applications";
 import Profile from "./pages/Profile";
+import InterviewDashboard from "./pages/InterviewDashboard";
+import InterviewResults from "./pages/InterviewResults";
 
 const queryClient = new QueryClient();
 
@@ -229,6 +231,24 @@ const App = () => (
                 </AuthenticatedLayout>
               </TooltipProvider>
             </ProtectedRoute>
+          } />
+          <Route path="/interviews" element={
+            <RoleBasedRoute>
+              <TooltipProvider>
+                <AuthenticatedLayout>
+                  <InterviewDashboard />
+                </AuthenticatedLayout>
+              </TooltipProvider>
+            </RoleBasedRoute>
+          } />
+          <Route path="/interview/:interviewId/results" element={
+            <RoleBasedRoute>
+              <TooltipProvider>
+                <AuthenticatedLayout>
+                  <InterviewResults />
+                </AuthenticatedLayout>
+              </TooltipProvider>
+            </RoleBasedRoute>
           } />
             {/* Candidate-specific Routes */}
           <Route path="/profile" element={

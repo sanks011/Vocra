@@ -357,10 +357,20 @@ exports.applyForJob = async (req, res) => {
     if (req.file) {
       applicationData.resumeUrl = `/uploads/resumes/${req.file.filename}`;
       applicationData.resumeFileName = req.file.originalname;
-    }
-
-    job.applicants.push(applicationData);
+    }    job.applicants.push(applicationData);
     await job.save();
+
+    // Automatically schedule interview
+    try {
+      const interviewController = require('./interview.controller');
+      const resumeUrl = applicationData.resumeUrl || null;
+      
+      await interviewController.scheduleInterview(job._id, req.user.id, resumeUrl);
+      console.log(`Interview scheduled for user ${req.user.id} for job ${job._id}`);
+    } catch (error) {
+      console.error('Failed to schedule interview:', error);
+      // Continue even if interview scheduling fails
+    }
 
     res.status(200).json({ message: 'Application submitted successfully' });
   } catch (error) {

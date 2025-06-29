@@ -94,10 +94,14 @@ export const getRecruiterSidebarData = (user: any): SidebarData => ({
           ],
         },
       ],
-    },
-    {
+    },    {
       title: 'Interviews',
       items: [
+        {
+          title: 'Interview Dashboard',
+          url: '/interviews',
+          icon: Calendar,
+        },
         {
           title: 'Schedule Interview',
           url: '/interviews/schedule',
